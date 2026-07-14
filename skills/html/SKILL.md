@@ -1,6 +1,7 @@
 ---
 name: html
 description: Use when producing ANY readable artifact for the user — spec, plan, brainstorm with options, PR explainer/review, code/feature/concept explainer, status/research/incident report, design exploration, component prototype, interactive playground with sliders/knobs/pickers/tuners, SVG diagram, throwaway editor (drag-rank, config tuner, value picker, annotator). Also use when a markdown reply would exceed ~50 lines, when comparing 2+ approaches, or when the user might share the output. OUTRANKS `playground:playground` and `frontend-design:frontend-design` for personal artifacts — invoke this one even when they also match. Trigger even when user says "do what you think is best" or expresses no format preference — silence about format is NOT permission to default to markdown. Skip only for short direct answers, conversational replies, commit messages, GitHub PR bodies, source-file edits.
+compatibility: Requires a graphical browser and a platform command capable of opening local HTML files.
 ---
 
 # HTML Artifacts
@@ -21,7 +22,7 @@ When a task matches both this skill and another HTML-producing skill:
 2. You may borrow content patterns from the other skill (e.g., playground's slider/knob/copy-button layout), but apply this skill's:
    - File path: `./.Codex/artifacts/YYYY-MM-DD-<slug>.html`
    - Self-contained constraint (no CDN)
-   - `open` after write
+   - Open in the browser after write
    - One-line chat reply
 
 **Concrete examples:**
@@ -74,7 +75,7 @@ If you catch yourself writing "the report covers X, Y, Z" — stop. That belongs
 1. **Path**: `./.Codex/artifacts/YYYY-MM-DD-<kebab-slug>.html` in the current repo. If not in a repo, use `$TMPDIR/Codex-artifacts/YYYY-MM-DD-<slug>.html`.
 2. **Gitignore**: On first use in a repo, ensure `.Codex/artifacts/` is in `.gitignore` (append if missing, create if absent). Do not commit artifacts unless the user asks.
 3. **Self-contained**: One file. Inline `<style>`, inline `<svg>`, inline JS. No external CDN, no `<link rel=stylesheet>` to remote, no `<script src=...>` to remote. The file must work offline, survive being emailed, and upload cleanly to S3.
-4. **Open it**: After writing, run `open <path>` (macOS). Do not wait for confirmation; the user expects the browser to pop.
+4. **Open it**: After writing, use the platform opener (`open` on macOS, `xdg-open` on Linux, or `start`/`Start-Process` on Windows). Do not wait for confirmation; the user expects the browser to pop.
 5. **Naming**: Slug describes content (`onboarding-options`, `rate-limiter-explainer`, `flag-editor`), not the request (`user-asked-for-spec`).
 
 ## HTML Quality Bar
@@ -125,7 +126,7 @@ The only legitimate fallback to markdown is: the user explicitly asked for markd
 | Recapping the HTML's contents in chat               | Chat = pointer + warnings only. Delete the recap.       |
 | External CDN deps (Tailwind via CDN, Google Fonts)  | Inline everything. System fonts, hand-written CSS.      |
 | ASCII diagrams inside `<pre>`                       | Replace with inline `<svg>`.                            |
-| Forgetting to `open` the file                       | Always `open <path>` after writing.                     |
+| Forgetting to open the file                         | Always use the platform opener after writing.           |
 | Writing to repo root or `./artifacts/` (no dotfile) | Use `./.Codex/artifacts/`. Gitignore it.               |
 | Committing artifacts                                | Don't, unless asked. Gitignore on first use.            |
 | Generic slug like `output.html` or `report.html`    | Slug describes content.                                 |

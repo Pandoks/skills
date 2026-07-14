@@ -14,6 +14,7 @@ description: >-
   OUTRANKS the `html` skill when the artifact is fundamentally a node-and-flow
   diagram with scenarios. Skip for a single static picture with no
   scenarios/steps (a plain SVG via `html` is lighter), or non-visual answers.
+compatibility: Requires Node.js 18+ and a graphical browser; Playwright is optional for automated rendering.
 ---
 
 # Interactive System Diagram
@@ -22,7 +23,7 @@ description: >-
 
 This skill produces a **single self-contained HTML file**: a pan/zoom canvas of boxes ("nodes") grouped into optional zones, connected by **numbered flow arrows**, with **tabs at the top** to switch between scenarios (different views of the same system) and a **collapsible bottom-left panel** listing the numbered steps. Clicking a step **isolates** it (focus mode). Labels are **drag-repositionable**.
 
-It is the same engine every time — you NEVER write the rendering/interaction code. You ship a fixed `template.html` and inject ONLY a data block describing the diagram's content. This guarantees every diagram has byte-identical behaviour and look.
+It is the same engine every time — you NEVER write the rendering/interaction code. You ship a fixed `assets/template.html` and inject ONLY a data block describing the diagram's content. This guarantees every diagram has byte-identical behaviour and look.
 
 **Core principle (inherited from `html`):** the artifact IS the explanation. The chat reply is one line (path + that it opened) plus must-see warnings only. No recap of the diagram's contents in chat.
 
@@ -35,12 +36,12 @@ Use `diagram` (not `html`) when the thing being explained is **a system of parts
 1. **Path**: `./.Codex/artifacts/YYYY-MM-DD-<kebab-slug>.html` in the current repo. If not in a repo, `$TMPDIR/Codex-artifacts/YYYY-MM-DD-<slug>.html`.
 2. **Gitignore**: ensure `.Codex/artifacts/` is in `.gitignore` on first use.
 3. **Self-contained**: the template already inlines everything (no CDN). Keep it that way.
-4. **Open it**: after writing, run `open <path>` (macOS). Don't wait for confirmation.
+4. **Open it**: after writing, use the platform opener (`open` on macOS, `xdg-open` on Linux, or `start`/`Start-Process` on Windows). Don't wait for confirmation.
 5. **Slug** describes content (`order-fulfillment-flow`, `bill-to-law`, `cellular-respiration`), not the request.
 
 ## The Workflow — do exactly this
 
-1. **Locate the template**: it sits next to this SKILL.md at `<skill-dir>/template.html`. Find the skill dir from the path printed when this skill loaded (the "Base directory for this skill" line). Read it ONCE if you want to confirm structure — but you do NOT edit the engine.
+1. **Locate the template**: it sits at `<skill-dir>/assets/template.html`. Find the skill dir from the path printed when this skill loaded (the "Base directory for this skill" line). Read it ONCE if you want to confirm structure — but you do NOT edit the engine.
 
 2. **Design the DATA** (this is your whole job — see "Data Contract" below). Decide:
    - the **nodes** (boxes): what are the distinct parts of the system?
@@ -48,7 +49,7 @@ Use `diagram` (not `html`) when the thing being explained is **a system of parts
    - the **scenarios** (tabs): what are the 2–6 distinct views/flows worth showing? Each is a named tab.
    - for each scenario, the **grid** (where each node sits), the **flow** (numbered arrows), and the **steps** (the numbered list).
 
-3. **Write the file**: read `template.html`, replace the FOUR placeholders, write to the artifact path:
+3. **Write the file**: read `assets/template.html`, replace the FOUR placeholders, write to the artifact path:
    - `/*__NODES__*/` → your `const NODES = { … };`
    - `/*__SCENARIOS__*/` → your `const SC = { … };`
    - `__TITLE__` → the `<title>` text (e.g. `Order Fulfillment`)
@@ -57,11 +58,11 @@ Use `diagram` (not `html`) when the thing being explained is **a system of parts
 
 4. **VERIFY — mandatory, not optional.** Run the harness on the file you just wrote:
    ```
-   node <skill-dir>/verify.mjs <your-output-file>
+   node <skill-dir>/scripts/verify.mjs <your-output-file>
    ```
-   (`<skill-dir>` is where this SKILL.md + `template.html` live — the "Base directory for this skill" printed when the skill loaded.) It checks node overlaps, arrows passing through boxes, label collisions, flow/steps parity, AND opens the file in a headless browser to catch runtime crashes that silently drop arrows. **If it reports ANY problem, FIX the data (grids/bows/step-counts/malformed arrows) and re-run — loop until it prints `ALL CHECKS PASSED`. Do NOT proceed to step 5 until it passes.** (If it prints "render check skipped — Playwright not installed", the static checks still ran; that's fine, just be extra careful to eyeball the result.)
+   (`<skill-dir>` contains this SKILL.md, `assets/template.html`, and `scripts/verify.mjs`.) It checks node overlaps, arrows passing through boxes, label collisions, flow/steps parity, AND opens the file in a headless browser to catch runtime crashes that silently drop arrows. **If it reports ANY problem, FIX the data (grids/bows/step-counts/malformed arrows) and re-run — loop until it prints `ALL CHECKS PASSED`. Do NOT proceed to step 5 until it passes.** (If it prints "render check skipped — Playwright not installed", the static checks still ran; that's fine, just be extra careful to eyeball the result.)
 
-5. **Open it** with `open <path>`, then reply with one line.
+5. **Open it** with the platform opener, then reply with one line.
 
 ## Data Contract
 
@@ -165,7 +166,7 @@ If you're unsure, prefer MORE columns/rows and SHORTER hops — spread the nodes
 
 ## Verifying your output
 
-This is **step 4 of the workflow and is mandatory** — `node <skill-dir>/verify.mjs <your-file>` must print `ALL CHECKS PASSED` before you finish. It reads your file, extracts `NODES`/`SC`, replays the grid math (no node-overlaps, no arrow through a node, no label collisions, `flow.length === steps.length`, no orphan nodes), and — if Playwright is available — opens the file headless and clicks every tab to catch runtime crashes that silently drop arrows. Fix-and-re-run until clean. A passing verify proves the diagram is well-formed and renders; it does NOT prove the *content* is correct — so still glance at the opened diagram.
+This is **step 4 of the workflow and is mandatory** — `node <skill-dir>/scripts/verify.mjs <your-file>` must print `ALL CHECKS PASSED` before you finish. It reads your file, extracts `NODES`/`SC`, replays the grid math (no node-overlaps, no arrow through a node, no label collisions, `flow.length === steps.length`, no orphan nodes), and — if Playwright is available — opens the file headless and clicks every tab to catch runtime crashes that silently drop arrows. Fix-and-re-run until clean. A passing verify proves the diagram is well-formed and renders; it does NOT prove the *content* is correct — so still glance at the opened diagram.
 
 ## Common Mistakes
 
@@ -184,6 +185,6 @@ This is **step 4 of the workflow and is mandatory** — `node <skill-dir>/verify
 
 ## Chat reply
 
-After `open`, reply with ONE line: the path and that it opened, e.g.
+After opening, reply with ONE line: the path and that it opened, e.g.
 `Wrote and opened ./.Codex/artifacts/2026-06-15-bill-to-law.html — 4 scenarios (introduce, committee, floor vote, veto override).`
 Plus any must-see warning. Nothing else.

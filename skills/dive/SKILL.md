@@ -1,7 +1,6 @@
 ---
 name: dive
 description: Deep-dive the current project and write durable context files for future Codex sessions
-allowed-tools: Bash, Read, Glob, Grep, Write, Edit, Agent, WebFetch, Skill, TodoWrite
 ---
 
 Perform a comprehensive deep-dive on the current project. The user has explicitly invoked this — burn the tokens, take the time, capture every minute detail. Future Codex sessions will Read the artifacts you produce.
@@ -42,7 +41,7 @@ This is enough to identify project type, build/test commands, and area boundarie
 
 ## 2. Dispatch parallel Explore agents (this is the expensive step — do it in parallel)
 
-Use the `superpowers:dispatching-parallel-agents` skill. Dispatch ONE Explore agent per major area discovered in step 1. Common areas:
+Use the `dispatching-parallel-agents` skill. Dispatch ONE Explore agent per major area discovered in step 1. Common areas:
 
 - Frontend (src/, app/, components/, pages/)
 - Backend / API (api/, server/, routes/, handlers/)

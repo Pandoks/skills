@@ -11,8 +11,8 @@ Instead of asking the user to pick between approaches in the abstract, implement
 
 **Core principle:** Comparison beats discussion. A working diff is worth a thousand bullet-point trade-offs.
 
-**REQUIRED SUB-SKILL:** Use `superpowers:using-git-worktrees` for worktree creation.
-**REQUIRED SUB-SKILL:** Use `superpowers:dispatching-parallel-agents` for the parallel implementation step.
+**REQUIRED SUB-SKILL:** Use `using-git-worktrees` for worktree creation.
+**REQUIRED SUB-SKILL:** Use `dispatching-parallel-agents` for the parallel implementation step.
 **RELATED:** When a worktree has no test command, each subagent improvises an exercise per `test` — a comparison is only meaningful if both sides actually ran.
 **RELATED:** This skill is for competing *code implementations*. When the fork is between competing explanations, interpretations, or research directions — not code — pursue every branch by investigation, not worktrees: `dig`.
 
@@ -46,7 +46,7 @@ Instead of asking the user to pick between approaches in the abstract, implement
 
    Capture `$SCRATCH`, `$STASH`, and the list path **once** and pass them explicitly to later steps / subagents — don't re-derive a path with `$$` (each subagent runs in a different shell with a different PID, so `$$` won't match). If `$STASH` is empty there are no tracked changes to copy — that's fine, skip the apply step below.
 
-3. **Create one worktree per approach** via `superpowers:using-git-worktrees`. Name as `<repo>-try-<slug>` where slug is short kebab-case (e.g. `myapp-try-token-bucket`, `myapp-try-leaky-bucket`).
+3. **Create one worktree per approach** via `using-git-worktrees`. Name as `<repo>-try-<slug>` where slug is short kebab-case (e.g. `myapp-try-token-bucket`, `myapp-try-leaky-bucket`).
 
 4. **Restore working state into each worktree:**
 
@@ -69,7 +69,7 @@ Instead of asking the user to pick between approaches in the abstract, implement
 
    If you can't reconstruct the runtime env in a worktree, say so in the report — a comparison whose tests couldn't run is still useful (you have the diffs) but flag it as un-exercised.
 
-6. **Dispatch one subagent per worktree** via `superpowers:dispatching-parallel-agents`. Each agent receives:
+6. **Dispatch one subagent per worktree** via `dispatching-parallel-agents`. Each agent receives:
    - Its worktree path
    - **Only its assigned approach** (never the alternative list — prevents cross-contamination)
    - Instruction to implement; then **verify it** — run the project's test command if one exists, otherwise improvise a real exercise per `test` (a "comparison" where neither side was actually run is just two untested diffs); then return: files changed, test/exercise result, one-line trade-off note

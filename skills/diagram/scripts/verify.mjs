@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 // Diagram verification harness. Usage: node verify.mjs <path-to-diagram.html>
 // Extracts NODES + SC from a generated diagram, replays the engine's grid/layout math,
 // and asserts: JS compiles · placeholders filled · node-vs-node no overlap · no arrow
@@ -8,10 +9,21 @@
 // NOTE: this is a local, trusted-input check (your own generated file). It uses new
 // Function()/eval to load the data block — safe here because the input is a file you
 // just wrote, not untrusted user input.
-import fs from 'fs';
+import fs from 'node:fs';
+import { dirname, resolve } from 'node:path';
+import { pathToFileURL } from 'node:url';
 
-const path = process.argv[2];
-if (!path) { console.error('usage: node verify.mjs <file.html>'); process.exit(2); }
+const usage = 'Usage: node verify.mjs <diagram.html>';
+const input = process.argv[2];
+if (input === '--help' || input === '-h') { console.log(usage); process.exit(0); }
+if (!input) { console.error(usage); process.exit(2); }
+const path = resolve(input);
+try {
+  if (!fs.statSync(path).isFile()) throw new Error('not a file');
+} catch {
+  console.error(`error: diagram file not found: ${input}`);
+  process.exit(2);
+}
 const html = fs.readFileSync(path, 'utf8');
 
 const problems = [];
@@ -33,7 +45,9 @@ catch (e) { problems.push('JS syntax error: ' + e.message); }
 function grab(a, b) { const i = html.indexOf(a); return i < 0 ? '' : html.slice(i, html.indexOf(b, i)); }
 let NODES, SC, COLW, COLGAP, ROWH, ROWGAP;
 try {
-  const metrics = grab('const COLW=', 'const ZONE_COLORS=').split('\n').filter(l => l.includes('const COLW') || l.includes('COL_X') || l.includes('ROW_Y')).join('\n');
+  const metrics = html.match(/const\s+COLW\s*=\s*(\d+)\s*,\s*COLGAP\s*=\s*(\d+)\s*,\s*ROWH\s*=\s*(\d+)\s*,\s*ROWGAP\s*=\s*(\d+)\s*;/);
+  if (!metrics) throw new Error('could not parse layout metrics');
+  [COLW, COLGAP, ROWH, ROWGAP] = metrics.slice(1).map(Number);
   // pull the NODES object (from "const NODES = {" to the "};" before the next function/const)
   function objBlock(start) {
     const si = html.indexOf(start); if (si < 0) return '';
@@ -42,12 +56,9 @@ try {
     for (; i < html.length; i++) { if (html[i] === '{') depth++; else if (html[i] === '}') { depth--; if (depth === 0) break; } }
     return html.slice(si, i + 1) + ';';
   }
-  const sandbox = {};
   const code = objBlock('const NODES =') + '\n' + objBlock('const SC =') + '\n'
-    + 'const COLW=560,COLGAP=320,ROWH=300,ROWGAP=120;'
-    + 'globalThis.__N=NODES;globalThis.__S=SC;globalThis.__M={COLW,COLGAP,ROWH,ROWGAP};';
-  new Function(code)();
-  NODES = globalThis.__N; SC = globalThis.__S; ({ COLW, COLGAP, ROWH, ROWGAP } = globalThis.__M);
+    + 'return { NODES, SC };';
+  ({ NODES, SC } = new Function(code)());
   ok.push(`parsed ${Object.keys(NODES).length} nodes, ${Object.keys(SC).length} scenarios`);
 } catch (e) { problems.push('could not parse NODES/SC: ' + e.message); }
 
@@ -102,12 +113,17 @@ async function renderCheck() {
   // Resolve playwright from the target file's repo (walk up for node_modules/playwright),
   // then fall back to a bare import. Skips gracefully if not found anywhere.
   const candidates = [];
-  let dir = path.replace(/\/[^/]*$/, '');
-  for (let i = 0; i < 8 && dir; i++) { candidates.push(dir + '/node_modules/playwright/index.js'); dir = dir.replace(/\/[^/]*$/, ''); }
+  let dir = dirname(path);
+  for (let i = 0; i < 8; i++) {
+    candidates.push(resolve(dir, 'node_modules/playwright/index.js'));
+    const parent = dirname(dir);
+    if (parent === dir) break;
+    dir = parent;
+  }
   candidates.push('playwright');
   for (const c of candidates) {
     try {
-      const url = c.startsWith('/') ? ('file://' + c) : c;
+      const url = c === 'playwright' ? c : pathToFileURL(c).href;
       const mod = await import(url);
       chromium = mod.chromium || (mod.default && mod.default.chromium);
       if (chromium) break;
@@ -121,7 +137,7 @@ async function renderCheck() {
     const pageErrors = [];
     page.on('pageerror', e => pageErrors.push(e.message));
     page.on('console', m => { if (m.type() === 'error') pageErrors.push('console: ' + m.text()); });
-    await page.goto('file://' + (path.startsWith('/') ? path : process.cwd() + '/' + path), { waitUntil: 'networkidle' });
+    await page.goto(pathToFileURL(path).href, { waitUntil: 'networkidle' });
     await page.waitForTimeout(300);
     const tabs = await page.$$('#tabs button');
     const found = [];

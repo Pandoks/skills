@@ -41,7 +41,7 @@ When someone asks "how should I use tool X" — or asks you to audit their setup
 
 **REQUIRED SUB-SKILL: `[[ground]]`** — every claim must be primary-source-grounded. No memory-only quotes, no Stack Overflow as primary source, no hedging in place of fetching.
 
-**REQUIRED SUB-SKILL (conditional): `[[superpowers:dispatching-parallel-agents]]`** — dispatch sub-agents *only when each source needs reasoning* (reading + summarizing many files, traversing a docs tree). For 3 single `gh api` calls of ~1 second each, **parallel Bash calls in one tool block are cheaper and faster** than dispatching agents. Rule of thumb: file-or-page fetch → parallel Bash; "read this repo and tell me what they do" → sub-agent.
+**REQUIRED SUB-SKILL (conditional): `[[dispatching-parallel-agents]]`** — dispatch sub-agents *only when each source needs reasoning* (reading + summarizing many files, traversing a docs tree). For 3 single `gh api` calls of ~1 second each, **parallel Bash calls in one tool block are cheaper and faster** than dispatching agents. Rule of thumb: file-or-page fetch → parallel Bash; "read this repo and tell me what they do" → sub-agent.
 
 **RELATED: `[[dig]]`** — when neither vendor docs nor adopter examples have a pre-published answer to a *sub-question* (partial coverage is normal), invoke `dig` for that sub-question only. Label the reconstruction `Inferred:` with named parts and confidence.
 
@@ -156,7 +156,7 @@ Look at independent adopter convergence. Source list **by question domain**:
 
 **Dispatch strategy:**
 - 3 single `gh api` calls → parallel Bash in one tool block.
-- "Read repo X and tell me how they structure Y" → sub-agent via `[[superpowers:dispatching-parallel-agents]]`.
+- "Read repo X and tell me how they structure Y" → sub-agent via `[[dispatching-parallel-agents]]`.
 - Don't dispatch a sub-agent for a single file fetch.
 
 ### Step 4a — Operational fallbacks (rate limits, missing files)

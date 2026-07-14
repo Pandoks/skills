@@ -39,9 +39,21 @@ npx skills add Pandoks/skills --skill '*' --agent codex --global --yes
 ## Compatibility
 
 These skills are Codex-oriented. Some reference Codex tool names, macOS `open`,
-or skills from the `superpowers` collection. The `diagram` skill includes its
-template and validator; browser rendering in the validator additionally uses
-Playwright when available.
+or skills from the `superpowers` collection. Install these dependencies in the
+same scope as the Pandoks skills. For the global Codex install above, run:
+
+```sh
+npx skills add obra/superpowers \
+  --skill dispatching-parallel-agents \
+  --skill using-git-worktrees \
+  --agent codex \
+  --global \
+  --yes
+```
+
+The `diagram` skill includes its template and verifier. The verifier is plain
+ESM in a `.mjs` file so it runs directly on Node.js 18+ without a TypeScript
+build step. Browser rendering additionally uses Playwright when available.
 
 ## Validate
 
@@ -49,6 +61,8 @@ Playwright when available.
 bash scripts/validate.sh
 ```
 
-The validator installs the repository into a temporary Codex project through
-the `skills` CLI and checks that all eight skills and their supporting files are
-copied exactly.
+Validation requires Node.js 18+ and
+[`uv`](https://docs.astral.sh/uv/getting-started/installation/). It runs the
+official Agent Skills reference validator, installs the repository into a
+temporary Codex project through a pinned `skills` CLI, byte-checks all copied
+files, and exercises the diagram verifier's command-line interface.
