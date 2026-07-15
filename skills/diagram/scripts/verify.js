@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Diagram verification harness. Usage: node verify.mjs <path-to-diagram.html>
+// Diagram verification harness. Usage: node verify.js <path-to-diagram.html>
 // Extracts NODES + SC from a generated diagram, replays the engine's grid/layout math,
 // and asserts: JS compiles · placeholders filled · node-vs-node no overlap · no arrow
 // passes through a third node · every label clears every other label · flow.length ===
@@ -9,11 +9,12 @@
 // NOTE: this is a local, trusted-input check (your own generated file). It uses new
 // Function()/eval to load the data block — safe here because the input is a file you
 // just wrote, not untrusted user input.
-import fs from 'node:fs';
-import { dirname, resolve } from 'node:path';
-import { pathToFileURL } from 'node:url';
+(async () => {
+const { default: fs } = await import('node:fs');
+const { dirname, resolve } = await import('node:path');
+const { pathToFileURL } = await import('node:url');
 
-const usage = 'Usage: node verify.mjs <diagram.html>';
+const usage = 'Usage: node verify.js <diagram.html>';
 const input = process.argv[2];
 if (input === '--help' || input === '-h') { console.log(usage); process.exit(0); }
 if (!input) { console.error(usage); process.exit(2); }
@@ -156,22 +157,30 @@ async function renderCheck() {
   } catch (e) { if (browser) await browser.close().catch(() => {}); return { skipped: false, error: e.message }; }
 }
 
-const rc = await renderCheck();
-if (rc.skipped) {
-  ok.push('render check skipped (Playwright not installed — static checks only)');
-} else if (rc.error) {
-  problems.push('render check failed to run: ' + rc.error);
-} else {
-  if (rc.pageErrors.length) rc.pageErrors.forEach(e => problems.push('RUNTIME ERROR during render: ' + e));
-  // each scenario should render arrows if it has steps (>1 step implies flows exist)
-  rc.tabs.forEach((tb, i) => {
-    if (tb.steps > 0 && tb.flowItems === 0) problems.push(`scenario tab ${i} ("${tb.title || 'untitled'}") rendered 0 arrows despite ${tb.steps} steps — likely a malformed arrow crashed render`);
-    if (!tb.title) problems.push(`scenario tab ${i} has an EMPTY title (render produced no title — scenario likely crashed)`);
-  });
-  if (!rc.pageErrors.length) ok.push(`render check passed (${rc.tabs.length} tabs rendered, no runtime errors)`);
+async function main() {
+  const rc = await renderCheck();
+  if (rc.skipped) {
+    ok.push('render check skipped (Playwright not installed — static checks only)');
+  } else if (rc.error) {
+    problems.push('render check failed to run: ' + rc.error);
+  } else {
+    if (rc.pageErrors.length) rc.pageErrors.forEach(e => problems.push('RUNTIME ERROR during render: ' + e));
+    // each scenario should render arrows if it has steps (>1 step implies flows exist)
+    rc.tabs.forEach((tb, i) => {
+      if (tb.steps > 0 && tb.flowItems === 0) problems.push(`scenario tab ${i} ("${tb.title || 'untitled'}") rendered 0 arrows despite ${tb.steps} steps — likely a malformed arrow crashed render`);
+      if (!tb.title) problems.push(`scenario tab ${i} has an EMPTY title (render produced no title — scenario likely crashed)`);
+    });
+    if (!rc.pageErrors.length) ok.push(`render check passed (${rc.tabs.length} tabs rendered, no runtime errors)`);
+  }
+
+  console.log(`\n=== verify: ${path} ===`);
+  ok.forEach(o => console.log('  ✓ ' + o));
+  if (problems.length) { console.log('\n  PROBLEMS:'); problems.forEach(p => console.log('  ✗ ' + p)); console.log(`\n${problems.length} problem(s).`); process.exit(1); }
+  console.log('\n  ✓ ALL CHECKS PASSED — diagram is well-formed.');
 }
 
-console.log(`\n=== verify: ${path} ===`);
-ok.forEach(o => console.log('  ✓ ' + o));
-if (problems.length) { console.log('\n  PROBLEMS:'); problems.forEach(p => console.log('  ✗ ' + p)); console.log(`\n${problems.length} problem(s).`); process.exit(1); }
-console.log('\n  ✓ ALL CHECKS PASSED — diagram is well-formed.');
+await main();
+})().catch(error => {
+  console.error(`error: ${error.message}`);
+  process.exit(1);
+});

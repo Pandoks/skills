@@ -58,9 +58,9 @@ Use `diagram` (not `html`) when the thing being explained is **a system of parts
 
 4. **VERIFY — mandatory, not optional.** Run the harness on the file you just wrote:
    ```
-   node <skill-dir>/scripts/verify.mjs <your-output-file>
+   node <skill-dir>/scripts/verify.js <your-output-file>
    ```
-   (`<skill-dir>` contains this SKILL.md, `assets/template.html`, and `scripts/verify.mjs`.) It checks node overlaps, arrows passing through boxes, label collisions, flow/steps parity, AND opens the file in a headless browser to catch runtime crashes that silently drop arrows. **If it reports ANY problem, FIX the data (grids/bows/step-counts/malformed arrows) and re-run — loop until it prints `ALL CHECKS PASSED`. Do NOT proceed to step 5 until it passes.** (If it prints "render check skipped — Playwright not installed", the static checks still ran; that's fine, just be extra careful to eyeball the result.)
+   (`<skill-dir>` contains this SKILL.md, `assets/template.html`, and `scripts/verify.js`.) It checks node overlaps, arrows passing through boxes, label collisions, flow/steps parity, AND opens the file in a headless browser to catch runtime crashes that silently drop arrows. **If it reports ANY problem, FIX the data (grids/bows/step-counts/malformed arrows) and re-run — loop until it prints `ALL CHECKS PASSED`. Do NOT proceed to step 5 until it passes.** (If it prints "render check skipped — Playwright not installed", the static checks still ran; that's fine, just be extra careful to eyeball the result.)
 
 5. **Open it** with the platform opener, then reply with one line.
 
@@ -166,7 +166,7 @@ If you're unsure, prefer MORE columns/rows and SHORTER hops — spread the nodes
 
 ## Verifying your output
 
-This is **step 4 of the workflow and is mandatory** — `node <skill-dir>/scripts/verify.mjs <your-file>` must print `ALL CHECKS PASSED` before you finish. It reads your file, extracts `NODES`/`SC`, replays the grid math (no node-overlaps, no arrow through a node, no label collisions, `flow.length === steps.length`, no orphan nodes), and — if Playwright is available — opens the file headless and clicks every tab to catch runtime crashes that silently drop arrows. Fix-and-re-run until clean. A passing verify proves the diagram is well-formed and renders; it does NOT prove the *content* is correct — so still glance at the opened diagram.
+This is **step 4 of the workflow and is mandatory** — `node <skill-dir>/scripts/verify.js <your-file>` must print `ALL CHECKS PASSED` before you finish. It reads your file, extracts `NODES`/`SC`, replays the grid math (no node-overlaps, no arrow through a node, no label collisions, `flow.length === steps.length`, no orphan nodes), and — if Playwright is available — opens the file headless and clicks every tab to catch runtime crashes that silently drop arrows. Fix-and-re-run until clean. A passing verify proves the diagram is well-formed and renders; it does NOT prove the *content* is correct — so still glance at the opened diagram.
 
 ## Common Mistakes
 
@@ -181,7 +181,7 @@ This is **step 4 of the workflow and is mandatory** — `node <skill-dir>/script
 | Recapping the diagram in chat | Chat = one line (path + opened) + must-see warnings only. |
 | Skipping a required step to keep it short | A flow that omits a step it must perform is wrong. Draw the real sequence. |
 | In-place / self-step using a channel name instead of `compute` | For a step ON one node (`from`==`to`, e.g. `['atmosphere','atmosphere',…]`), `net` MUST be `'compute'` — NOT a channel word like `'condensation'`. A same-node arrow with any other `net` is a degenerate zero-length arrow. (The engine now renders any same-node ref as a badge, but always set `net:'compute'` so the label reads right.) |
-| Trusting `verify.mjs` passed without opening the file | The harness now also runs a headless RENDER check (it will fail on a runtime crash). But still glance at the opened diagram — verify checks structure + render, not whether the *content* is correct. |
+| Trusting `verify.js` passed without opening the file | The harness now also runs a headless RENDER check (it will fail on a runtime crash). But still glance at the opened diagram — verify checks structure + render, not whether the *content* is correct. |
 
 ## Chat reply
 

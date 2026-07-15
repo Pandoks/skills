@@ -2,17 +2,35 @@
 set -euo pipefail
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-verifier="$repo_root/skills/diagram/scripts/verify.mjs"
+verifier="$repo_root/skills/diagram/scripts/verify.js"
 template="$repo_root/skills/diagram/assets/template.html"
 scratch="$(mktemp -d)"
 trap 'rm -rf "$scratch"' EXIT
 
-test -f "$verifier"
+if [[ ! -f "$verifier" ]]; then
+  echo "Expected the diagram verifier at $verifier." >&2
+  exit 1
+fi
+if git -C "$repo_root" ls-files '*.mjs' | grep -q .; then
+  echo "Expected the repository to contain no .mjs files." >&2
+  exit 1
+fi
 test -f "$template"
 
 node "$verifier" --help >"$scratch/help.out" 2>"$scratch/help.err"
-grep -Fq "Usage: node verify.mjs <diagram.html>" "$scratch/help.out"
+grep -Fq "Usage: node verify.js <diagram.html>" "$scratch/help.out"
 test ! -s "$scratch/help.err"
+
+mkdir -p "$scratch/esm-project"
+printf '%s\n' '{"type":"module"}' >"$scratch/esm-project/package.json"
+cp "$verifier" "$scratch/esm-project/verify.js"
+if ! node "$scratch/esm-project/verify.js" --help >"$scratch/esm-help.out" 2>"$scratch/esm-help.err"; then
+  echo "Expected verify.js to run inside a type=module project." >&2
+  cat "$scratch/esm-help.err" >&2
+  exit 1
+fi
+grep -Fq "Usage: node verify.js <diagram.html>" "$scratch/esm-help.out"
+test ! -s "$scratch/esm-help.err"
 
 if node "$verifier" "$scratch/missing.html" >"$scratch/missing.out" 2>"$scratch/missing.err"; then
   echo "Expected a missing input file to fail." >&2
@@ -26,8 +44,8 @@ if node "$verifier" "$template" >"$scratch/template.out" 2>"$scratch/template.er
 fi
 grep -Fq "unfilled placeholder:" "$scratch/template.out"
 
-TEMPLATE="$template" OUTPUT="$scratch/valid.html" node --input-type=module --eval '
-  import fs from "node:fs";
+TEMPLATE="$template" OUTPUT="$scratch/valid.html" node --eval '
+  const fs = require("node:fs");
   const nodes = `const NODES = {
     source:{w:480,h:160,zone:"",kind:"actor",icon:"S",title:"Source",sub:"start",lines:[["role","producer"]]},
     sink:{w:480,h:160,zone:"",kind:"store",icon:"D",title:"Sink",sub:"finish",lines:[["role","consumer"]]}

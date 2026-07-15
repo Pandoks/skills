@@ -51,9 +51,10 @@ npx skills add obra/superpowers \
   --yes
 ```
 
-The `diagram` skill includes its template and verifier. The verifier is plain
-ESM in a `.mjs` file so it runs directly on Node.js 18+ without a TypeScript
-build step. Browser rendering additionally uses Playwright when available.
+The `diagram` skill includes its template and verifier. The verifier is a plain
+`.js` file that runs directly in CommonJS or ESM projects on Node.js 18+, with
+no TypeScript build step or package metadata. Browser rendering additionally
+uses Playwright when available.
 
 ## Validate
 
