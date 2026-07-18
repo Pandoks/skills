@@ -55,15 +55,3 @@ The `diagram` skill includes its template and verifier. The verifier is a plain
 `.js` file that runs directly in CommonJS or ESM projects on Node.js 18+, with
 no TypeScript build step or package metadata. Browser rendering additionally
 uses Playwright when available.
-
-## Validate
-
-```sh
-bash scripts/validate.sh
-```
-
-Validation requires Node.js 20.12+ and
-[`uv`](https://docs.astral.sh/uv/getting-started/installation/). It runs the
-official Agent Skills reference validator, installs the repository into a
-temporary Codex project through a pinned `skills` CLI, byte-checks all copied
-files, and exercises the diagram verifier's command-line interface.
