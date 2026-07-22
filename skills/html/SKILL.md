@@ -1,6 +1,13 @@
 ---
 name: html
-description: Use when producing ANY readable artifact for the user — spec, plan, brainstorm with options, PR explainer/review, code/feature/concept explainer, status/research/incident report, design exploration, component prototype, interactive playground with sliders/knobs/pickers/tuners, SVG diagram, throwaway editor (drag-rank, config tuner, value picker, annotator). Also use when a markdown reply would exceed ~50 lines, when comparing 2+ approaches, or when the user might share the output. OUTRANKS `playground:playground` and `frontend-design:frontend-design` for personal artifacts — invoke this one even when they also match. Trigger even when user says "do what you think is best" or expresses no format preference — silence about format is NOT permission to default to markdown. Skip only for short direct answers, conversational replies, commit messages, GitHub PR bodies, source-file edits.
+description: >-
+  Use when the user asks for a self-contained HTML artifact, interactive
+  explainer, playground, prototype, shareable report or spec, or a visual
+  document with richer layout than chat; or when the requested deliverable
+  would otherwise exceed about 50 lines or is clearly meant to be shared.
+  When the sibling diagram skill is installed, prefer it for multi-scenario
+  node-and-flow systems. Skip ordinary plans, brief comparisons,
+  conversational explanations, code edits, commit messages, and PR bodies.
 compatibility: Requires a graphical browser and a platform command capable of opening local HTML files.
 ---
 
@@ -8,164 +15,73 @@ compatibility: Requires a graphical browser and a platform command capable of op
 
 ## Overview
 
-Default output medium for readable artifacts is **a self-contained HTML file opened in the browser**, not markdown in chat. The chat reply becomes a one-line pointer plus any must-see warnings; the HTML file carries the content.
+Create one self-contained HTML file and open it in the browser. The artifact carries the explanation; the chat response contains only its path and must-see warnings.
 
-**Core principle:** The artifact IS the explanation. Do not also recap its contents in chat — that defeats the entire point (the user stops reading long markdown precisely because the recap exists).
+When the sibling `diagram` skill is installed, use it instead for a multi-scenario node-and-flow visualization; otherwise build the visualization directly. Combine this workflow with any available design or playground guidance when specialized interaction or visual polish is needed; do not assume optional skills are installed.
 
-## Skill Outranking (resolve collisions before they happen)
+## When to use
 
-Several other skills may also match HTML-producing tasks: `playground:playground` (interactive single-file explorers), `frontend-design:frontend-design` (design polish), and various `*:report-style` plugins. **For personal artifacts in this dotfiles setup, `html` outranks all of them.**
+- The user explicitly requests HTML, an interactive explainer, prototype, playground, or shareable visual document.
+- A report, spec, research synthesis, or incident writeup needs richer layout than chat.
+- The deliverable requires interactive controls, inline SVG, annotated code, or a custom editor.
+- The result is long enough to benefit materially from navigation and a standalone file.
 
-When a task matches both this skill and another HTML-producing skill:
+Skip ordinary plans, short comparisons, conversational answers, source-code edits, commit messages, and PR bodies. Respect an explicit request for Markdown or chat output.
 
-1. Invoke `html` via the `Skill` tool — not the other one.
-2. You may borrow content patterns from the other skill (e.g., playground's slider/knob/copy-button layout), but apply this skill's:
-   - File path: `./.Codex/artifacts/YYYY-MM-DD-<slug>.html`
-   - Self-contained constraint (no CDN)
-   - Open in the browser after write
-   - One-line chat reply
+## File handling
 
-**Concrete examples:**
+1. Write `./.agents/artifacts/YYYY-MM-DD-<kebab-slug>.html` in a repository; otherwise use a platform temporary directory.
+2. Ensure `.agents/artifacts/` is ignored by Git on first use. Do not commit artifacts unless asked.
+3. Keep everything inline: CSS, SVG, JavaScript, fonts, and data. Do not use CDNs or remote runtime dependencies.
+4. Open the file with the platform’s normal browser opener.
+5. Use a descriptive content slug, not `output.html` or `report.html`.
 
-- "Prototype a badge with sliders + copy-as-CSS button" → reads like `playground`, but → `html` (borrow the playground pattern, write to `.Codex/artifacts/`, one-line reply).
-- "Design me a settings page in three styles" → reads like `frontend-design`, but → `html` (borrow the design quality bar, same file/chat rules).
-- "Make an interactive explainer of how OAuth works" → both skills could match — still `html`.
+## Quality bar
 
-The reason: `playground` and `frontend-design` produce great HTML but don't enforce the **chat-vs-HTML split** that makes the article's workflow work. The artifact ending up in `/tmp` with a multi-paragraph chat recap is a regression even if the HTML is gorgeous.
+Every artifact includes:
 
-## When To Use
+- `<!doctype html>`, UTF-8 charset, viewport metadata, and a meaningful title.
+- Semantic headings, keyboard-accessible controls, visible focus states, and sufficient contrast.
+- A system font stack, readable prose width, responsive layout, and dark-mode support.
+- A table of contents and anchors when there are three or more major sections.
+- Inline SVG for diagrams and proper HTML tables for tabular data.
+- `<pre><code>` blocks for code, without external syntax-highlighter dependencies.
 
-Fires for any of these:
+For common formats:
 
-- **Specs, plans, brainstorms** — especially multi-option comparisons rendered as a side-by-side grid
-- **PR explainers and code reviews** — rendered diffs with inline margin annotations, severity color-coding
-- **Code/feature/concept explainers** — "how does X work" with diagrams + annotated snippets + gotchas section
-- **Research, reports, status updates, incident writeups** — synthesizing across codebase, git, MCPs, web
-- **Design system artifacts, component visualizations, animation prototypes** — sliders/knobs to tune values
-- **SVG diagrams, flowcharts, technical illustrations**
-- **One-off custom editors** — drag-rank, config editor with dependency warnings, side-by-side prompt tuner, dataset curator, document annotator, value picker for colors/easing curves/crop regions/cron schedules/regexes. Always end these with a "Copy as prompt/JSON/markdown" export button.
+- **Comparisons:** Use a responsive grid or table and label each option’s core trade-off.
+- **Interactive editors:** Provide an export or copy button and visible success feedback.
+- **Code or PR explainers:** Show actual code or diffs with annotations and severity labels.
+- **Research and incidents:** Lead with the key finding and place source links beside the claims.
 
-Skip for:
+## Verification
 
-- Short direct answers (< ~50 lines markdown equivalent)
-- Conversational replies, clarifying questions
-- Commit messages, PR descriptions to GitHub, code comments
-- Code edits inside source files
-- Anything the user is steering moment-to-moment in chat
+Before opening the artifact:
 
-## The Chat-vs-HTML Split (the rule that matters most)
+1. Confirm there are no remote `<script>`, stylesheet, font, image, or module dependencies unless the user explicitly requested them.
+2. Parse or open the file in a browser and check the console for errors.
+3. Exercise every interactive control and export action.
+4. Check the layout at narrow and wide viewport sizes.
+5. Confirm keyboard navigation and dark mode remain readable.
 
-When this skill fires, the chat reply contains **only**:
+## Chat contract
 
-1. One line stating the path and that it was opened. Example: `Wrote and opened ./.Codex/artifacts/2026-05-16-checkout-spec.html`
-2. **Must-see warnings only** — destructive findings, blocking risks, broken assumptions, security/data-loss concerns. One line each. If the user must act on it before opening the file, it goes here.
+After opening, reply with:
 
-The chat reply must NOT contain:
+1. One line containing the path and that it opened.
+2. Only warnings the user must see before opening the artifact.
 
-- A summary of the HTML's contents ("Here's what I included…")
-- A bulleted list of sections
-- A recap of the analysis or recommendation
-- Inline excerpts of the HTML
-- "Let me know if you want me to adjust…" trailers
+Do not duplicate the artifact with a summary, section list, excerpts, or a trailing offer in chat.
 
-If you catch yourself writing "the report covers X, Y, Z" — stop. That belongs as the HTML's table of contents, not in chat.
+## Common mistakes
 
-## File Handling Protocol
+| Mistake | Fix |
+|---|---|
+| External CDN or font | Inline it or use system assets. |
+| ASCII diagram | Use inline SVG. |
+| Artifact saved at repo root | Use `.agents/artifacts/` and ignore it. |
+| Interactive control without export | Add a copy/download action and feedback. |
+| Long chat recap beside the file | Keep chat to the path and critical warnings. |
+| Multi-scenario system forced into generic HTML | Use the sibling `diagram` skill when installed; otherwise build a dedicated node-and-flow artifact. |
 
-1. **Path**: `./.Codex/artifacts/YYYY-MM-DD-<kebab-slug>.html` in the current repo. If not in a repo, use `$TMPDIR/Codex-artifacts/YYYY-MM-DD-<slug>.html`.
-2. **Gitignore**: On first use in a repo, ensure `.Codex/artifacts/` is in `.gitignore` (append if missing, create if absent). Do not commit artifacts unless the user asks.
-3. **Self-contained**: One file. Inline `<style>`, inline `<svg>`, inline JS. No external CDN, no `<link rel=stylesheet>` to remote, no `<script src=...>` to remote. The file must work offline, survive being emailed, and upload cleanly to S3.
-4. **Open it**: After writing, use the platform opener (`open` on macOS, `xdg-open` on Linux, or `start`/`Start-Process` on Windows). Do not wait for confirmation; the user expects the browser to pop.
-5. **Naming**: Slug describes content (`onboarding-options`, `rate-limiter-explainer`, `flag-editor`), not the request (`user-asked-for-spec`).
-
-## HTML Quality Bar
-
-Every artifact must include:
-
-- `<!doctype html>`, `<meta charset=utf-8>`, `<meta name=viewport content="width=device-width,initial-scale=1">`
-- `<title>` matching the content
-- A single `<style>` block. System font stack (`-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`). Readable measure (~70ch max for prose). Generous whitespace.
-- Dark mode via `@media (prefers-color-scheme: dark)` — match the user's OS.
-- Anchor links and a TOC if there are 3+ sections.
-- Diagrams as inline `<svg>`, never ASCII. Never unicode-as-color hacks.
-- Code snippets in `<pre><code>` with monospace and a subtle background. Syntax highlighting only if it adds value; inline `<span>` colors are fine — no external highlighter library.
-- Tables for any tabular data. Don't fake tables with `<pre>`.
-
-For comparison/option-grid artifacts: CSS grid, one card per option, each card labeled with the trade-off it makes.
-
-For interactive editors: end with an export button (`Copy as JSON`, `Copy as prompt`, `Copy as markdown`) that builds the export string and writes it to clipboard via `navigator.clipboard.writeText(...)`. Show a brief "copied" confirmation.
-
-For PR/code explainers: render the actual diff with `+`/`-` line gutters, inline margin annotations as `<aside>` elements, severity badges (info/warn/critical) as colored pills.
-
-## Use Cases (with prompt shapes)
-
-These map 1:1 to the article. Each is a _kind_ of artifact this skill produces.
-
-| Use case                        | Defining feature of the HTML                                               |
-| ------------------------------- | -------------------------------------------------------------------------- |
-| Multi-option exploration        | Grid of N cards, each card = one approach, each labeled with its trade-off |
-| Implementation plan             | Sections for data flow, mockups, key snippets, risk register; TOC at top   |
-| PR creation explainer           | Renders the diff + annotations; attach link to the PR description          |
-| PR review                       | Same as above + severity-coded findings                                    |
-| Code/feature explainer          | One flow diagram (SVG) + 3–4 annotated snippets + gotchas section          |
-| Research/status/incident report | Headline finding at top, supporting sections below, sources cited inline   |
-| Design system reference         | Component gallery, each component with code snippet + live render          |
-| Component prototype             | Live rendered component + sliders/knobs binding to CSS variables           |
-| Throwaway editor                | Form/dragger UI for the specific data + export button                      |
-
-## Token / Latency Trade-Off
-
-HTML costs 2–4× the tokens and time of equivalent markdown. Accept this. The user has opted into the trade-off by enabling this skill. Do not propose "should I do markdown instead to save tokens" — the answer is no.
-
-The only legitimate fallback to markdown is: the user explicitly asked for markdown, or the artifact is < ~50 lines and would be silly as an HTML file (in which case this skill should not have fired at all).
-
-## Common Mistakes
-
-| Mistake                                             | Fix                                                     |
-| --------------------------------------------------- | ------------------------------------------------------- |
-| Recapping the HTML's contents in chat               | Chat = pointer + warnings only. Delete the recap.       |
-| External CDN deps (Tailwind via CDN, Google Fonts)  | Inline everything. System fonts, hand-written CSS.      |
-| ASCII diagrams inside `<pre>`                       | Replace with inline `<svg>`.                            |
-| Forgetting to open the file                         | Always use the platform opener after writing.           |
-| Writing to repo root or `./artifacts/` (no dotfile) | Use `./.Codex/artifacts/`. Gitignore it.               |
-| Committing artifacts                                | Don't, unless asked. Gitignore on first use.            |
-| Generic slug like `output.html` or `report.html`    | Slug describes content.                                 |
-| "Should I make this HTML?" preamble                 | Just do it. The skill fired; the decision is made.      |
-| Markdown table dumped into chat instead of the HTML | The chat reply is one line. The table goes in the file. |
-
-## Rationalizations to Reject (captured from real failures)
-
-These are the exact thought-shapes that caused this skill to NOT fire when it should have. If you catch yourself thinking any of them, you are rationalizing — invoke the skill.
-
-| Rationalization                                                                             | Reality                                                                                                                                    |
-| ------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
-| "User said 'do what you think is best' / 'no format preference', so markdown is fine here"  | The skill's trigger explicitly covers this. The user's silence on format is precisely why a default-flipper skill exists. Use HTML.        |
-| "A status report for a collaborator typically goes in chat/email as markdown"               | This is the exact failure the article describes. Markdown reports go unread. Use HTML and the user shares the link.                        |
-| "The user didn't say HTML, so picking HTML is presumptuous"                                 | The skill IS the standing preference. Triggering it is honoring the user's setup, not presuming.                                           |
-| "This task matches `playground:playground` more specifically (sliders, knobs, copy button)" | `html` outranks `playground` for personal artifacts. Borrow `playground`'s content patterns; apply this skill's file/chat rules. |
-| "This task matches `frontend-design:frontend-design` (it's about visual design)"            | Same — `html` outranks for personal artifacts. Borrow the design quality; apply this skill's file/chat rules.                    |
-| "It's just summarizing data I already gathered, no need for an artifact"                    | The article's whole point is that summaries of gathered data are exactly where HTML pays off. Use the skill.                               |
-| "Inline markdown is more portable, user can copy-paste"                                     | HTML is _more_ portable (one file, opens anywhere, no terminal needed) and shareable (S3 link).                                            |
-| "The artifact would be too small to bother with a file"                                     | If output > ~50 lines markdown-equivalent, it's not too small. If it has a diagram or comparison, it's not too small.                      |
-| "I'll just produce markdown AND mention the skill exists"                                   | No — the skill exists to _replace_ the markdown, not coexist with it.                                                                      |
-
-## Red Flags — STOP
-
-If you notice yourself doing any of these, you've lost the plot:
-
-- Writing more than 3 lines of chat reply alongside an HTML artifact
-- Listing what's in the HTML ("The report includes a summary, a diagram, and…")
-- Asking the user "want me to also explain it here?"
-- Generating ASCII art when you could generate SVG
-- Adding `<link rel=stylesheet href=https://...>` to the file
-- Saving a `.md` file when the trigger conditions matched
-- Invoking `playground:playground` or `frontend-design:frontend-design` instead of this skill for a personal artifact
-- Writing the artifact to `/tmp/<something>.html` or `~/Desktop/` instead of `./.Codex/artifacts/`
-- Reasoning "the user said 'no format preference' so I'll pick markdown" — that phrasing is precisely when this skill SHOULD fire
-- Producing a long markdown summary in chat while also writing the HTML (double-output)
-
-**All of these mean: rewrite as a self-contained HTML file at `./.Codex/artifacts/YYYY-MM-DD-<slug>.html`, invoke THIS skill (not an adjacent one), with a one-line chat reply.**
-
-## Discovery Hint for Future Sessions
-
-Artifacts live in `./.Codex/artifacts/`. If the user references "the spec you made" or "that explainer," check there first, sorted by date.
+Artifacts live in `./.agents/artifacts/`; check that directory when the user refers to a previous artifact.

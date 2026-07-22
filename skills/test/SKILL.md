@@ -1,6 +1,11 @@
 ---
 name: test
-description: Use after implementing any code or config change in a project, before claiming the work complete. Especially for projects with no documented test setup — no test script in package.json/Makefile/pyproject.toml/Cargo.toml, no testing section in README/CONTRIBUTING/AGENTS.md. Symptoms — about to claim work complete without running anything, about to commit code that hasn't been exercised, project has no apparent test command. Skip for pure documentation/comment edits.
+description: >-
+  Use when code or configuration has changed and the work is about to be
+  declared complete, committed, or published, including projects without an
+  obvious test command or work for which only static checks have run. Skip for
+  pure documentation or comment-only edits and for diagnosis before any
+  implementation change.
 ---
 
 # Testing Implementations
@@ -17,7 +22,7 @@ Every code or config change must be **exercised against reality** before being d
 
 ### Step 1 — Discover what the project already provides
 
-Check in order, stop at first hit:
+Inspect every applicable source; do not stop at the first one:
 
 | Location                                      | What to look for                                                     |
 | --------------------------------------------- | -------------------------------------------------------------------- |
@@ -37,10 +42,10 @@ Pick the pattern matching the project type. Always run a **real** exercise, not 
 
 | Project type                                     | Improvised exercise                                                                                                                                                                                                                                                           |
 | ------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **HTTP service / API**                           | Start the dev server in the background (Codex: `run_in_background: true`; otherwise `cmd &` or a separate pane). Wait for it to be ready (loop curl or check the port). Hit affected endpoints; assert status + body shape. Tail logs for errors.                       |
+| **HTTP service / API**                           | Start the dev server with the host's background-process mechanism or a separate terminal. Wait for readiness by polling the health endpoint or port. Hit affected endpoints; assert status and body shape. Inspect logs for errors.                       |
 | **CLI tool**                                     | Build if needed. Run with realistic inputs covering the change. Check exit code, stdout, stderr. If your change added a flag, exercise it directly.                                                                                                                           |
 | **Library (npm/pip/cargo)**                      | `mktemp -d`, install the local package (`npm install <path>`, `pip install -e <path>`, `cargo add --path <path>`). Write a minimal consumer that exercises the new API. Run it.                                                                                               |
-| **Frontend component / page**                    | Start the dev server. Drive a browser (Codex: `playwright` MCP tool; otherwise headless Playwright/Puppeteer or manual) — navigate, snapshot the DOM, click the affected element, screenshot. Check browser console messages for errors.                                |
+| **Frontend component / page**                    | Start the dev server. Use an available browser automation tool, Playwright/Puppeteer, or a documented manual flow. Navigate, inspect the DOM, exercise the affected interaction, capture a screenshot when useful, and check console errors.                                |
 | **Config (tmux, nvim, yabai, hammerspoon, zsh)** | Reload the config (`tmux source-file`, `yabai --restart-service`, `:source $MYVIMRC`, etc.). Trigger the behavior the change affects. Inspect logs (`tail ~/.hammerspoon/console.log`, etc.).                                                                                 |
 | **Shell script / dotfile**                       | Source it in a subshell to catch syntax errors. Invoke the affected function/alias with realistic input.                                                                                                                                                                      |
 | **Database migration**                           | Apply to a dev/local DB. Query to confirm schema. Reverse if reversible to confirm symmetry.                                                                                                                                                                                  |
@@ -82,7 +87,7 @@ The only valid exit before tests pass is "genuinely impossible." Be honest with 
 | External API confirmed unreachable (try twice with network diagnostics)                                                                        | Impossible if your change isn't supposed to be offline-tolerant                                                               |
 | Same exact error after several genuinely-different fix attempts, root cause is a package-version conflict you can't resolve without user input | Impossible — report with full diagnostic                                                                                      |
 | Compile error → still compile error                                                                                                            | Fixable. Read the error, fix the code.                                                                                        |
-| Test passes locally but fails on a flaky timing assertion                                                                                      | Fixable. Find the race condition, use `condition-based-waiting` patterns.                                                     |
+| Test passes locally but fails on a flaky timing assertion                                                                                      | Fixable. Find the race and wait for an observable condition instead of sleeping a fixed duration.                            |
 | Test asserts wrong thing                                                                                                                       | Fixable. Either the code is wrong (fix code) or the test is wrong (fix test, but verify with the user if it's existing test). |
 | "I don't know how to fix this"                                                                                                                 | Not impossible. Read more code, check git blame, search for similar fixes in commit history, look up the error.               |
 
@@ -108,27 +113,12 @@ The only valid exit before tests pass is "genuinely impossible." Be honest with 
 | Hand-waving "looks good to me" as verification                   | Not verification. Run it.                                                                  |
 | Silently giving up after many failures                           | Always report impossible explicitly — never just stop.                                     |
 
-## Example
+## Reporting
 
-**Scenario:** You added a `--dry-run` flag to a CLI tool in a project with no `npm test` script and no testing docs.
+Report what ran and what happened in one concise receipt. For example:
 
-**Wrong:** "I've added `--dry-run`. Should be working now." (Untested.)
-
-**Right:**
-
-```bash
-# Step 1: discover test setup
-cat package.json | jq '.scripts'   # → only "start" and "build", no test
-# Step 2: improvise
-npm run build
-./dist/cli.js process input.txt --dry-run
-# → confirms output starts with "[dry-run]" and no files were modified
-./dist/cli.js process input.txt
-# → confirms files ARE modified in the non-dry-run path (regression check)
-./dist/cli.js process --dry-run    # missing required arg
-# → confirms error handling still works
+```text
+Verified the new dry-run path with a real input: it changed no files; the normal path still writes, bad arguments still fail, and the build passes.
 ```
 
-Then report it in **one line**, not a paragraph (respect the user's terseness preferences): _"Added `--dry-run` — verified: prefixes output `[dry-run]` and writes no files; normal path still writes; bad-args still errors; build passes. No test suite; improvised 3 real invocations."_
-
-The user gets the change + the receipts, not a recap of the diff.
+Name any pre-existing failure or blocked exercise precisely. Do not claim the full suite passed when only a subset ran.

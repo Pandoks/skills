@@ -1,6 +1,13 @@
 ---
 name: try-all
-description: Use when about to ask the user to choose between 2+ substantive implementation approaches — architecture, algorithm, data structure, library, or design pattern choices where the answer benefits from a side-by-side comparison of real implementations — OR when undecided between competing hypotheses, interpretations of an ambiguous request, or research directions where pursuing each branch would settle which is right. Symptoms include drafting a message like "Option A or Option B — which do you prefer?", listing trade-offs in the abstract, recommending a path while uncertain whether an alternative would be cleaner, or picking the likelier of two explanations and moving on. Do NOT use for trivial choices (variable names, formatting, single-line refactors, choices the user already specified). For non-code forks (competing explanations, interpretations, research directions), the comparison happens via investigation rather than worktrees — see `dig`.
+description: >-
+  Use when an agent is about to ask the user to choose between two or more
+  substantive code implementations, architectures, algorithms, libraries, or
+  design patterns, and each branch can be evaluated safely and reversibly
+  within scope. Also use when uncertainty would otherwise be resolved through
+  abstract trade-offs alone. Skip research-only forks, trivial choices, and
+  choices the user has already specified.
+compatibility: Requires Git worktree support and the ability to run isolated implementation tasks; rsync is optional.
 ---
 
 # Trying Everything
@@ -11,10 +18,9 @@ Instead of asking the user to pick between approaches in the abstract, implement
 
 **Core principle:** Comparison beats discussion. A working diff is worth a thousand bullet-point trade-offs.
 
-**REQUIRED SUB-SKILL:** Use `using-git-worktrees` for worktree creation.
-**REQUIRED SUB-SKILL:** Use `dispatching-parallel-agents` for the parallel implementation step.
-**RELATED:** When a worktree has no test command, each subagent improvises an exercise per `test` — a comparison is only meaningful if both sides actually ran.
-**RELATED:** This skill is for competing *code implementations*. When the fork is between competing explanations, interpretations, or research directions — not code — pursue every branch by investigation, not worktrees: `dig`.
+Use the host's worktree guidance and parallel-agent capabilities when available. Otherwise create worktrees with Git directly and implement the branches sequentially. When the sibling `test` skill is installed, follow it; otherwise improvise a real exercise. A comparison is meaningful only when each branch was exercised.
+
+This skill is for competing code implementations. For competing explanations, interpretations, or research directions, use the sibling `dig` skill when installed or investigate each branch directly instead.
 
 ## When to Use
 
@@ -23,7 +29,7 @@ Instead of asking the user to pick between approaches in the abstract, implement
 - You identified 2–4 meaningfully different implementation approaches.
 - Each approach would touch real code (not just a rename).
 - The user hasn't pre-committed to one approach.
-- The approaches can be validated quickly — a test command, a build, or an improvisable real exercise (per `test`). If you genuinely can't exercise _any_ of them, fall back to a single quick prototype + one round-trip with the user instead of N un-exercised worktrees.
+- The approaches can be validated quickly with a test command, build, or improvised real exercise. If you genuinely cannot exercise any of them, fall back to one quick prototype and one user round-trip instead of multiple unexercised worktrees.
 
 **Do NOT use when:**
 
@@ -39,14 +45,14 @@ Instead of asking the user to pick between approaches in the abstract, implement
 2. **Snapshot the working tree without touching it.** Original branch's working tree must remain unchanged.
 
    ```bash
-   SCRATCH="${CLAUDE_JOB_DIR:-$(mktemp -d)}"            # stable across the steps below
+   SCRATCH="$(mktemp -d)"                                # keep this path for later steps
    STASH=$(git stash create)                            # builds stash commit, working tree untouched
    git ls-files --others --exclude-standard > "$SCRATCH/untracked.list"
    ```
 
    Capture `$SCRATCH`, `$STASH`, and the list path **once** and pass them explicitly to later steps / subagents — don't re-derive a path with `$$` (each subagent runs in a different shell with a different PID, so `$$` won't match). If `$STASH` is empty there are no tracked changes to copy — that's fine, skip the apply step below.
 
-3. **Create one worktree per approach** via `using-git-worktrees`. Name as `<repo>-try-<slug>` where slug is short kebab-case (e.g. `myapp-try-token-bucket`, `myapp-try-leaky-bucket`).
+3. **Create one worktree per approach.** Use available worktree guidance or `git worktree add`. Name it `<repo>-try-<slug>` with a short kebab-case slug.
 
 4. **Restore working state into each worktree:**
 
@@ -56,7 +62,7 @@ Instead of asking the user to pick between approaches in the abstract, implement
    rsync -a --files-from="$SCRATCH/untracked.list" <repo-root>/ <worktree>/
    ```
 
-   (On Linux/GNU coreutils, `xargs -I{} cp --parents {} <worktree>/ < "$SCRATCH/untracked.list"` also works — but `cp --parents` is unavailable on macOS, so `rsync` is the portable default.)
+   If `rsync` is unavailable, copy the listed files while preserving their relative paths with a platform-appropriate tool.
 
 5. **Bring in gitignored runtime deps the tests need.** `git ls-files --others --exclude-standard` deliberately _excludes_ gitignored files, and `git worktree add` never copies them — so a fresh worktree has no `.env`, no `node_modules`, no `.venv`, no build cache. If the test command needs any of these, the subagent's run will fail for a reason that has nothing to do with the approach. Before dispatching, give each worktree what it needs:
 
@@ -69,10 +75,10 @@ Instead of asking the user to pick between approaches in the abstract, implement
 
    If you can't reconstruct the runtime env in a worktree, say so in the report — a comparison whose tests couldn't run is still useful (you have the diffs) but flag it as un-exercised.
 
-6. **Dispatch one subagent per worktree** via `dispatching-parallel-agents`. Each agent receives:
+6. **Run one isolated implementation task per worktree.** Parallelize with agents when the host supports it; otherwise run the branches sequentially. Each task receives:
    - Its worktree path
    - **Only its assigned approach** (never the alternative list — prevents cross-contamination)
-   - Instruction to implement; then **verify it** — run the project's test command if one exists, otherwise improvise a real exercise per `test` (a "comparison" where neither side was actually run is just two untested diffs); then return: files changed, test/exercise result, one-line trade-off note
+   - Instruction to implement and verify it with the project test command or an improvised real exercise; then return files changed, test or exercise result, and a one-line trade-off note. Two untested diffs are not a comparison.
    - Instruction that **"this approach turns out to be infeasible / its tests fail and I can't fix them" is a valid result to return** — report it, don't silently drop the row, don't retry forever, don't fake green. An approach that doesn't work is a finding the user wants.
 
 7. **Collect and report.** Markdown table — keep every row, including failed/infeasible ones (mark the result cell ❌ or "infeasible" and one line on why):
@@ -97,7 +103,7 @@ All of these mean: pick the top 2–4 approaches, worktree them.
 
 ## Cleanup
 
-Worktrees are NOT auto-removed — the user inspects them on their own clock. When done, the user runs `git worktree remove ../<name>` per worktree, or uses `commit-commands:clean_gone` if a worktree's branch has been merged and pruned.
+Worktrees are not auto-removed; the user may inspect them on their own clock. When finished, remove each with `git worktree remove ../<name>` and prune stale metadata with `git worktree prune`.
 
 ## Common Mistakes
 
@@ -110,11 +116,3 @@ Worktrees are NOT auto-removed — the user inspects them on their own clock. Wh
 | Dropping or hiding an approach that didn't work                    | "Approach X is infeasible" is a result. Keep the row, mark it ❌, one line on why.                                                       |
 | Trying every variable name in a worktree                           | Cosmetic choices are out of scope. One round-trip with the user is faster.                                                               |
 | Merging the "winner" without asking                                | The user picks. This skill stops at the report.                                                                                          |
-
-## Example
-
-User: "Implement debounce for the search input. Closure-based or class-based?"
-
-Without this skill: Codex asks "which would you prefer?" → user has to imagine both → suboptimal choice based on hunch.
-
-With this skill: Codex announces "Trying both: `closure` worktree and `class` worktree." → snapshots working tree → spawns two worktrees → dispatches two subagents → reports a table showing closure variant is 8 lines vs class variant 23 lines, both pass tests. User picks closure in seconds based on the actual diffs.
