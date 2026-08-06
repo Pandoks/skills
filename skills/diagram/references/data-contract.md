@@ -30,14 +30,14 @@ const NODES = {
     sub: 'fulfillment center',
     lines: [
       ['holds', 'SKUs · inventory'],
-      ['picks', 'robotic + manual'],
-    ],
-  },
+      ['picks', 'robotic + manual']
+    ]
+  }
 };
 
 const ZONE_LABELS = {
   company: 'Acme Logistics · internal',
-  external: 'Public / customers',
+  external: 'Public / customers'
 };
 ```
 
@@ -66,24 +66,29 @@ const SC = {
       customer: [0, 1],
       gateway: [1, 0],
       warehouse: [2, 1],
-      inventory: [3, 0],
+      inventory: [3, 0]
     },
     flow: [
       ['customer:r:0.4', 'gateway:l:0.6', 1, { net: 'HTTPS', ep: 'POST /orders', bow: -26 }],
       ['gateway:r:0.6', 'warehouse:l:0.3', 2, { net: 'queue', ep: 'enqueue order', bow: -26 }],
       ['warehouse:r:0.2', 'inventory:l:0.6', 3, { net: 'query', ep: 'reserve stock', bow: -26 }],
       ['warehouse', 'warehouse', 4, { net: 'compute', ep: 'allocate pick list' }],
-      ['warehouse:l:0.7', 'customer:r:0.7', 5, { ret: 1, net: 'HTTPS', ep: '201 confirmed', bow: 55 }],
+      [
+        'warehouse:l:0.7',
+        'customer:r:0.7',
+        5,
+        { ret: 1, net: 'HTTPS', ep: '201 confirmed', bow: 55 }
+      ]
     ],
     steps: [
       ['Customer → gateway: <code>POST /orders</code>', 0],
       ['Gateway → warehouse: enqueue the order', 0],
       ['Warehouse → inventory: reserve stock', 0],
       ['Warehouse: allocate the pick list', 0],
-      ['Warehouse → customer: <code>201 confirmed</code>', 1],
+      ['Warehouse → customer: <code>201 confirmed</code>', 1]
     ],
-    note: ['', 'A stock-out fails before confirmation.'],
-  },
+    note: ['', 'A stock-out fails before confirmation.']
+  }
 };
 ```
 

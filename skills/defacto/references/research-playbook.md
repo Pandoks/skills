@@ -13,13 +13,13 @@
 
 Select sources for the kind of tool under review:
 
-| Tool type | Primary sources |
-|---|---|
-| GitHub Action | Current README, `action.yml` or `action.yaml`, and official examples |
-| CLI tool | Official docs plus the installed binary’s `--help` output |
-| Library | Official docs, changelog, tests, and examples for the pinned major version |
-| Framework or platform | Canonical documentation site and current migration guidance |
-| Container image | Image repository README and its examples directory |
+| Tool type             | Primary sources                                                            |
+| --------------------- | -------------------------------------------------------------------------- |
+| GitHub Action         | Current README, `action.yml` or `action.yaml`, and official examples       |
+| CLI tool              | Official docs plus the installed binary’s `--help` output                  |
+| Library               | Official docs, changelog, tests, and examples for the pinned major version |
+| Framework or platform | Canonical documentation site and current migration guidance                |
+| Container image       | Image repository README and its examples directory                         |
 
 Fetch independent pages in parallel. For competing vendors, inspect both vendors’ positioning and configuration guidance. Vendor silence about the competitor is a `Vendor-silent` finding.
 
@@ -41,14 +41,14 @@ Framework-author repository structure is not automatically app-author convention
 
 Look for independent adopter convergence appropriate to the domain:
 
-| Question domain | Useful adopter sources |
-|---|---|
-| CI or GitHub Actions | Starter workflows and two or three independent production workflows |
-| Runtime, install, or deploy | Reference deployments, GitOps repositories, Terraform modules, and production writeups |
-| Architecture or workload shape | Canonical charts, operators, and mature project manifests |
-| Library API usage | Official examples plus two or three major dependents on the same major version |
-| Configuration structure | Two or three independent, production-oriented configurations |
-| Young SDK ecosystem | Vendor demos plus a ranked adopter search; expect possible vendor saturation |
+| Question domain                | Useful adopter sources                                                                 |
+| ------------------------------ | -------------------------------------------------------------------------------------- |
+| CI or GitHub Actions           | Starter workflows and two or three independent production workflows                    |
+| Runtime, install, or deploy    | Reference deployments, GitOps repositories, Terraform modules, and production writeups |
+| Architecture or workload shape | Canonical charts, operators, and mature project manifests                              |
+| Library API usage              | Official examples plus two or three major dependents on the same major version         |
+| Configuration structure        | Two or three independent, production-oriented configurations                           |
+| Young SDK ecosystem            | Vendor demos plus a ranked adopter search; expect possible vendor saturation           |
 
 A dominant publisher may be a distinct signal when it ships many artifacts under one documented style guide. Name it as publisher house style rather than independent ambient convergence.
 

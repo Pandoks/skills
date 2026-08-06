@@ -75,13 +75,13 @@ Do not duplicate the artifact with a summary, section list, excerpts, or a trail
 
 ## Common mistakes
 
-| Mistake | Fix |
-|---|---|
-| External CDN or font | Inline it or use system assets. |
-| ASCII diagram | Use inline SVG. |
-| Artifact saved at repo root | Use `.agents/artifacts/` and ignore it. |
-| Interactive control without export | Add a copy/download action and feedback. |
-| Long chat recap beside the file | Keep chat to the path and critical warnings. |
+| Mistake                                        | Fix                                                                                                 |
+| ---------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| External CDN or font                           | Inline it or use system assets.                                                                     |
+| ASCII diagram                                  | Use inline SVG.                                                                                     |
+| Artifact saved at repo root                    | Use `.agents/artifacts/` and ignore it.                                                             |
+| Interactive control without export             | Add a copy/download action and feedback.                                                            |
+| Long chat recap beside the file                | Keep chat to the path and critical warnings.                                                        |
 | Multi-scenario system forced into generic HTML | Use the sibling `diagram` skill when installed; otherwise build a dedicated node-and-flow artifact. |
 
 Artifacts live in `./.agents/artifacts/`; check that directory when the user refers to a previous artifact.

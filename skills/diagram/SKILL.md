@@ -62,14 +62,14 @@ Use this skill when the explanation is fundamentally a system of connected parts
 
 ## Common mistakes
 
-| Mistake | Fix |
-|---|---|
-| Arrow crosses a third node | Move a node to another row or adjust `bow`. |
-| Return overlaps the forward path | Use a larger opposite bow for the return. |
-| `flow` and `steps` differ | Make them one-to-one; numbering follows array order. |
-| A scenario contains an orphan node | Remove it from the grid or connect it to the real flow. |
-| A local action becomes a zero-length arrow | Use the same node at both ends with `net: 'compute'`. |
-| Verification passes but content is wrong | Inspect every tab and compare the sequence with grounded source behavior. |
+| Mistake                                    | Fix                                                                       |
+| ------------------------------------------ | ------------------------------------------------------------------------- |
+| Arrow crosses a third node                 | Move a node to another row or adjust `bow`.                               |
+| Return overlaps the forward path           | Use a larger opposite bow for the return.                                 |
+| `flow` and `steps` differ                  | Make them one-to-one; numbering follows array order.                      |
+| A scenario contains an orphan node         | Remove it from the grid or connect it to the real flow.                   |
+| A local action becomes a zero-length arrow | Use the same node at both ends with `net: 'compute'`.                     |
+| Verification passes but content is wrong   | Inspect every tab and compare the sequence with grounded source behavior. |
 
 ## Chat reply
 

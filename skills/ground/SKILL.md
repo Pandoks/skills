@@ -20,10 +20,10 @@ Grounding is per claim. Verifying one part of a multi-part answer does not cover
 
 ## The two checks
 
-| Check | What it catches | Typical evidence |
-|---|---|---|
-| Reference | Stale or invented facts, APIs, flags, and versions | Official docs, actual source, schemas, package metadata, installed version |
-| Empirical | Docs/runtime mismatch and behavioral edge cases | Minimal reproducer, real command, targeted test, local integration exercise |
+| Check     | What it catches                                    | Typical evidence                                                            |
+| --------- | -------------------------------------------------- | --------------------------------------------------------------------------- |
+| Reference | Stale or invented facts, APIs, flags, and versions | Official docs, actual source, schemas, package metadata, installed version  |
+| Empirical | Docs/runtime mismatch and behavioral edge cases    | Minimal reproducer, real command, targeted test, local integration exercise |
 
 Use both when both are possible. If a claim is not runnable, say that only the reference check was applicable. If a check is blocked, name the blocker and narrow the claim.
 

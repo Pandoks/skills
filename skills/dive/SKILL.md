@@ -24,14 +24,14 @@ Otherwise explain how to include `.agents/context/index.md` from the host’s pr
 
 For a non-trivial project, write:
 
-| Path | Contents |
-|---|---|
-| `index.md` | Project summary and links to the other context files |
+| Path              | Contents                                                              |
+| ----------------- | --------------------------------------------------------------------- |
+| `index.md`        | Project summary and links to the other context files                  |
 | `architecture.md` | Layers, data flow, key abstractions, state, and external integrations |
-| `conventions.md` | Enforced rules plus observed, non-trivial code style with evidence |
-| `gotchas.md` | Footguns, surprising invariants, workarounds, and recent regressions |
-| `workflows.md` | Exact install, build, dev, test, lint, typecheck, and deploy commands |
-| `entry-points.md` | Executable entry points, routes, jobs, workers, and scheduled tasks |
+| `conventions.md`  | Enforced rules plus observed, non-trivial code style with evidence    |
+| `gotchas.md`      | Footguns, surprising invariants, workarounds, and recent regressions  |
+| `workflows.md`    | Exact install, build, dev, test, lint, typecheck, and deploy commands |
+| `entry-points.md` | Executable entry points, routes, jobs, workers, and scheduled tasks   |
 
 For a genuinely tiny or config-only project, write only `index.md` and `workflows.md`; do not pad empty files.
 
