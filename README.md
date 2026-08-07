@@ -1,7 +1,7 @@
 # Pandoks Skills
 
-Opinionated agent skills for grounded research, implementation discipline, and
-interactive artifacts.
+Opinionated agent skills for grounded research, implementation discipline, and interactive
+artifacts.
 
 ## Install
 
@@ -38,9 +38,9 @@ npx skills add Pandoks/skills --skill '*' --agent codex --global --yes
 
 ## Compatibility
 
-These skills are Codex-oriented. Some reference Codex tool names, macOS `open`,
-or skills from the `superpowers` collection. Install these dependencies in the
-same scope as the Pandoks skills. For the global Codex install above, run:
+These skills are Codex-oriented. Some reference Codex tool names, macOS `open`, or skills from the
+`superpowers` collection. Install these dependencies in the same scope as the Pandoks skills. For
+the global Codex install above, run:
 
 ```sh
 npx skills add obra/superpowers \
@@ -51,7 +51,6 @@ npx skills add obra/superpowers \
   --yes
 ```
 
-The `diagram` skill includes its template and verifier. The verifier is a plain
-`.js` file that runs directly in CommonJS or ESM projects on Node.js 18+, with
-no TypeScript build step or package metadata. Browser rendering additionally
-uses Playwright when available.
+The `diagram` skill includes its template and verifier. The verifier is a plain `.js` file that runs
+directly in CommonJS or ESM projects on Node.js 18+, with no TypeScript build step or package
+metadata. Browser rendering additionally uses Playwright when available.
