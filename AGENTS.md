@@ -39,6 +39,15 @@
     results.
 - Never commit changes unless the user explicitly requests a commit after the changes are ready.
   Approval of a plan, implementation, or previous commit does not authorize another commit.
+- Plans should be interactable via a fully functioning web UI that can keep user choices and data.
+  - It should include easily to parse information with charts, diagrams, tables, code blocks, etc.
+  - For UI components or UX options, those options should have demos or examples in the plan so that
+    the user can see them in action before making a decision.
+  - In general, when there is multiple options, a demo of that option should be included in the plan
+    so that the user can see it in action before making a decision.
+  - Once the user accepts the plan, clean up the worktrees, plan web UI, and resources used to
+    experiment.
+  - Make sure to tell the user how to access the plan and demos when presenting.
 
 ## Suggestions
 
