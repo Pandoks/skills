@@ -20,6 +20,7 @@ created. These mainly include:
 - Installed packages
 - Installed applications
 - Services
+- Dead code
 
 These are the most common sources of residual artifacts, but there may be more. You should scan the
 entire system to find all of the residual artifacts that you have created.
