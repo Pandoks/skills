@@ -36,7 +36,8 @@ fixed, or reviewed.
 - For code or PR work, run parallel reviewers for separate angles, such as correctness, simplicity,
   repo conventions, and tests, until one round is clean on every angle.
 - **Implementers and fixers** get full context, run the checks, and may reject a wrong or
-  out-of-scope finding if they say why; you settle it and give later reviewers the outcome as a
+  out-of-scope finding if they say why; you settle it, tell later fixers the ruling and why ("an
+  earlier fixer rejected X; overruled because Y"), and give later reviewers the outcome as a
   requirement ("X stays as is because Y"), not as history.
 - **Reviewers** don't edit, start without your history (in Codex, `fork_turns: "none"`), and get
   only the current artifact and what they need to judge it (requirements, constraints, relevant
