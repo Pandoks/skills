@@ -1,34 +1,65 @@
 ---
 name: orchestrate
 description: >-
-  Use this skill whenever you are handling complex multi-step workflows, need to do multiple things
-  at once, or need more throughput.
+  Use for complex multi-step work, such as a feature, a PR review, or deep research, where subagents
+  can work in parallel or in stages.
 ---
 
-# Orchestration
+# Orchestrate
 
-## Overview
+As orchestrator, you hold the goal, context, and plan; subagents do all the work, including tests
+and writing. Favor quality over speed and token cost, but add no process the task doesn't need, such
+as gates, ledgers, or audit trails, and tell agents the same. Skip this for a quick one-step task.
 
-For very complex multi-step workflows, it's much better for you to keep context of the higher level
-overall picture while you let your subagents handle the implementation, debugging, testing, and
-information retrieval work.
+## Plan
 
-## Role
+1. Explore until you know the scope, what "done" means, and what must stay in sync, such as docs or
+   a PR description; delegate independent exploration.
+2. Split the work into tasks and map their dependencies, then run independent ones in parallel.
+   Start a dependent task as soon as its inputs are ready and pass them in, or run it alongside the
+   task it depends on, defining their interface in both briefs.
+3. Give each agent one task, the context it needs, real data (not placeholders), the user's standing
+   instructions (such as which model to use), and what to return; tell it to report only to you,
+   when it finishes or gets blocked. Never let two agents edit the same file or document at once.
+4. Use a single agent for simple lookups, gathering information for later steps, summaries of a
+   given source, and other work with no objective check; use a review loop for work with an
+   objective check, such as code, tests, configs, data, calculations, or the claims and conclusions
+   of a research report.
 
-- You are an agent conductor in charge of the high level workflow orchestration.
-- You are in charge of monitoring your agents and making sure they are working as expected towards
-  the goal.
-- You shouldn't be doing most of the work. You should be delegating that work to your subagents.
-  - You can still run code to monitor the status of the work to ensure that it's on track.
-- You should manage your subagents to ensure that they're staying on track and focused on the task
-  that you assigned them.
-- You should continuously monitor your subagents to keep up to date on their progress and the issues
-  they're facing.
+## Review loop
 
-## Subagents
+`implementer → reviewer → fixer → reviewer → …` until one round finds nothing. Every step is a new
+agent, closed when done. Don't fix anything yourself; every change gets a fresh review. Reuse a
+finished agent only if no fresh one can start even after waiting, and never to review work it made,
+fixed, or reviewed.
 
-- Subagents should handle work end to end.
-  - For example, if you're giving it a task to implement, it should be able to gather context,
-    plan, implement, test, debug, and fix any issues that arise.
-  - Another example is if you give them a task to monitor the progress of a worker, it should be
-    able to gather context, monitor the progress, and continuously update you on what's happening.
+- For code or PR work, run parallel reviewers for separate angles, such as correctness, simplicity,
+  repo conventions, and tests, until one round is clean on every angle.
+- **Implementers and fixers** get full context, run the checks, and may reject a wrong or
+  out-of-scope finding if they say why; you settle it, tell later fixers the ruling and why ("an
+  earlier fixer rejected X; overruled because Y"), and give later reviewers the outcome as a
+  requirement ("X stays as is because Y"), not as history.
+- **Reviewers** don't edit, start without your history (in Codex, `fork_turns: "none"`), and get
+  only the current artifact and what they need to judge it (requirements, constraints, relevant
+  interfaces, how to run the checks), not the fix history or how it changed between rounds. They
+  report only in-scope problems that change the outcome, such as a wrong result, an unmet
+  requirement or repo convention (documented or evident in existing code), needless complexity,
+  untested new behavior, or a conclusion its sources or results don't support. They give evidence
+  for each, confirm it themselves where they can (rerun, recompute, read the source), drop any that
+  don't hold up, and skip nits, preferences, and missing records of how the work was done.
+- If an issue comes back twice, change the brief or the approach.
+
+## Updates
+
+Post a short, plain update as agents report, or at the user's cadence: done, running, waiting, ETA.
+In T3 Code, run work as agents or tasks it shows, not bare background jobs, keep the thread title as
+`<task> — <state> (<ETA>)`, and schedule status posts for long waits, deleting them after.
+
+## Finish
+
+Wait for every agent and job, and for CI, deploys, and bot reviews to pass with their findings
+handled; if anything you wait on fails, stalls, or overruns, find out why and have a fresh agent fix
+what is in scope. If parts must work together, run the combined result through a review loop against
+the goal. Clean up what you or the agents created and no longer need, without asking. Only then,
+with the full checks passing on the final result and everything in sync (a PR description describes
+the current diff, not how it got there), say it's done.
