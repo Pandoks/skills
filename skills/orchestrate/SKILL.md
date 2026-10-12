@@ -48,33 +48,17 @@ fixed, or reviewed.
   for each, confirm it themselves where they can (rerun, recompute, read the source), drop any that
   don't hold up, and skip nits, preferences, and missing records of how the work was done.
 - If an issue comes back twice, change the brief or the approach.
-- When the task is only to review or audit, fixers revise the report, not the code, and failing
-  checks in that code are findings, not blockers.
 
-## Keep it moving
+## Updates
 
-- Retry failed agents; switch to another allowed model if a model keeps failing or hits its limit.
-  If anything you wait on fails, stalls, or overruns, find out why and have a fresh agent fix what
-  is in scope. On a usage limit, cap concurrent agents instead of stopping, retry held-back ones
-  periodically, not just at the stated reset, and raise the cap as they start.
-- Do in-scope steps without asking; ask first only before destructive, irreversible, or unrequested
-  externally visible steps, real scope changes, or user-reserved actions, such as commits. Use local
-  credentials, tools, and connectors before asking for access or context. Batch real questions and
-  keep working on whatever they don't block.
-- Never end a turn while a needed step could start, even if it needs a reversible assumption (state
-  it); watching a PR or CI is not a step. If only waiting is left (on agents, jobs, CI, or held-back
-  agents), set a wake-up for the soonest expected finish or next retry, since nothing wakes you when
-  work runs late; if you can't (often in Codex), keep waiting in the turn. Whenever you end a turn
-  with a question open or the work finished, say so plainly; in T3 Code, unwatch the PR first.
-- Post a short, plain update as agents report, or at the user's cadence: done, running, waiting,
-  ETA. In T3 Code, run work as agents or tasks it shows, not bare background jobs, keep the thread
-  title as `<task> — <state> (<ETA>)`, and schedule status posts for long waits, deleting them
-  after.
+Post a short, plain update as agents report, or at the user's cadence: done, running, waiting, ETA.
+In T3 Code, run work as agents or tasks it shows, not bare background jobs, keep the thread title as
+`<task> — <state> (<ETA>)`, and schedule status posts for long waits, deleting them after.
 
 ## Finish
 
 Wait for every agent and job, and for CI, deploys, and bot reviews to pass with their findings
 handled. If parts must work together, run the combined result through a review loop against the
-goal. Delete what you or the agents created and no longer need, without asking. Only then, with the
-full checks passing on the final result and everything in sync (a PR description describes the
+goal. Clean up what you or the agents created and no longer need, without asking. Only then, with
+the full checks passing on the final result and everything in sync (a PR description describes the
 current diff, not how it got there), say it's done.
