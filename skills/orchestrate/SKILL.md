@@ -58,7 +58,8 @@ In T3 Code, run work as agents or tasks it shows, not bare background jobs, keep
 ## Finish
 
 Wait for every agent and job, and for CI, deploys, and bot reviews to pass with their findings
-handled. If parts must work together, run the combined result through a review loop against the
-goal. Clean up what you or the agents created and no longer need, without asking. Only then, with
-the full checks passing on the final result and everything in sync (a PR description describes the
-current diff, not how it got there), say it's done.
+handled; if anything you wait on fails, stalls, or overruns, find out why and have a fresh agent fix
+what is in scope. If parts must work together, run the combined result through a review loop against
+the goal. Clean up what you or the agents created and no longer need, without asking. Only then,
+with the full checks passing on the final result and everything in sync (a PR description describes
+the current diff, not how it got there), say it's done.
