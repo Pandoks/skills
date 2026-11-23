@@ -41,8 +41,10 @@ scope.
 
 ## Skills
 
-| Skill                                              | Purpose                                                             |
-| -------------------------------------------------- | ------------------------------------------------------------------- |
-| [clean-up](skills/clean-up/SKILL.md)               | Review leftover task artifacts and remove them after confirmation.  |
-| [create-worktree](skills/create-worktree/SKILL.md) | Place and name Git worktrees consistently next to the project root. |
-| [orchestrate](skills/orchestrate/SKILL.md)         | Delegate and coordinate complex workflows across subagents.         |
+| Skill                                              | Purpose                                                                        |
+| -------------------------------------------------- | ------------------------------------------------------------------------------ |
+| [clean-up](skills/clean-up/SKILL.md)               | Clean up attributable task artifacts automatically and flag foreign ones.      |
+| [create-worktree](skills/create-worktree/SKILL.md) | Place and name Git worktrees consistently next to the project root.            |
+| [orchestrate](skills/orchestrate/SKILL.md)         | Delegate and coordinate complex workflows across subagents.                    |
+| [pr-ready](skills/pr-ready/SKILL.md)               | Self-review full diffs, trim comments/additions, and verify PR readiness.      |
+| [test-audit](skills/test-audit/SKILL.md)           | Gate new tests and audit low-value, implementation-coupled, or duplicate ones. |
