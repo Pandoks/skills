@@ -16,19 +16,18 @@ outputs are PRs and a final report.
 ## 1. Scope and cutoffs
 
 1. Ask once for anything unspecified: hosts in scope, project exclusions, target repos and files,
-   lookback window override, and line budgets (`AGENTS.md` net `<= 0` unless requested). Default
-   council models (overriding any single-provider rule unless the user names others):
-   `claude-opus-5-5` (`effort: xhigh`), `claude-fable-5-2` (`effort: xhigh`), `gpt-6.2-astra`
-   (`reasoningEffort: xhigh`), and `gemini-4-neon` (`thought_level: xhigh`). Never substitute
-   another model: if one is temporarily unavailable (such as a rate limit), skip it for that round
-   and retry it on the next round; if a model is missing from the harness or misconfigured, stop and
-   say so.
+   and line budgets (`AGENTS.md` net `<= 0` unless requested). Default council models (overriding
+   any single-provider rule unless the user names others): `claude-opus-5-5` (`effort: xhigh`),
+   `claude-fable-5-2` (`effort: xhigh`), `gpt-6.2-astra` (`reasoningEffort: xhigh`), and
+   `gemini-4-neon` (`thought_level: xhigh`). Never substitute another model: if one is temporarily
+   unavailable (such as a rate limit), skip it for that round and retry it on the next round; if a
+   model is missing from the harness or misconfigured, stop and say so.
 2. In fresh clones under `$RUN/repos/`, run `git log --follow --format='%H %cI %s' -- <path>` for
    each target `AGENTS.md`, skill, and review/CI config. Record each substantive rule's cutoff (a
    cosmetic edit does not reset unrelated rules) plus the last `git log --grep='^Dream:' -1` commit
    (checking open `Dream:` PRs too) in `cutoffs.tsv`. Set `last_run` to the newer of the latest
    completed `dream` thread's start in the session store and the newest `Dream:` PR's `createdAt`
-   (merge/commit dates lag the run), else `now - 30d`, unless the user overrides the window.
+   (merge/commit dates lag the run).
 3. Enumerate every open PR with a paginated query
    (`gh api --paginate 'repos/<owner>/<repo>/pulls?state=open&per_page=100'`; `gh pr list` stops at
    30), and save `git diff -U0 <base>...<head> -- <path>` for each target path. Protect the lines
@@ -42,18 +41,19 @@ outputs are PRs and a final report.
    logs). Obtain a consistent SQLite backup with the source database and its directory protected
    from writes by the OS, or copy the database and its present sidecars from one atomic filesystem
    snapshot. Query and integrity-check the resulting copy under `$RUN`. If a host is unreachable or
-   neither method is available, report that coverage gap and continue. Unless the user requests a
-   wider window or `all`, filter at query time to threads with activity after
-   `max(min(last_run, now - 30d), earliest_rule_cutoff)` so recurring runs never re-export stale
-   pre-fix history. Export normalized JSONL per top-level thread under `$RUN/corpus/`: host,
-   project, workspace, provider, timestamps, each human message, preceding assistant text, and
+   neither method is available, report that coverage gap and continue. Filter at query time to
+   threads with activity after `last_run - 7d` (or `now - 30d` when no prior run exists), keeping a
+   7-day overlap before `last_run` to verify whether recent changes improved outcomes without
+   re-exporting full history. Export normalized JSONL per top-level thread under `$RUN/corpus/`:
+   host, project, workspace, provider, timestamps, each human message, preceding assistant text, and
    inline review anchor, dropping excluded projects (with their aliases and worktrees) and subagent
    threads at query time.
-5. Write `manifest.json` with counts per host and per cutoff split into `new` (activity after
-   `last_run`) vs `lookback` (remaining post-cutoff window), verified by an independent count.
-   Weight `new` and post-cutoff recurrences over older history. If `new` has zero threads (and the
-   user did not widen the window) or Round 2 finds no reproducible drivers, skip to step 13 and
-   report `No changes needed`. Keep raw transcripts and secrets out of repos and PRs.
+5. Write `manifest.json` with counts per host and per cutoff split into `new` (after `last_run`, or
+   all exported on a first run) vs `overlap` (the 7-day baseline before `last_run`), verified by an
+   independent count. Weight `new` and post-cutoff recurrences over older history, and compare `new`
+   against `overlap` to check whether recent changes worked. If `new` has zero threads or Round 2
+   finds no reproducible drivers, skip to step 13 and report `No changes needed`. Keep raw
+   transcripts and secrets out of repos and PRs.
 
 ## 3. Multi-model council
 
