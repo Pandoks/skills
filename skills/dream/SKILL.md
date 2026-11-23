@@ -15,15 +15,14 @@ outputs are PRs and a final report.
 
 ## 1. Scope and cutoffs
 
-1. **Interactive runs:** ask once for anything unspecified (hosts in scope, project exclusions,
-   target repos and files, lookback window override, and line budgets—`AGENTS.md` net `<= 0` unless
-   requested). **Scheduled/unattended runs:** use the scope pinned in the prompt and proceed without
-   blocking on questions. Default council models (overriding any single-provider rule unless the
-   user names others): `claude-opus-5-5` (`effort: xhigh`), `claude-fable-5-2` (`effort: xhigh`),
-   `gpt-6.2-astra` (`reasoningEffort: xhigh`), and `gemini-4-neon` (`thought_level: xhigh`). Never
-   substitute another model: if one is temporarily unavailable (such as a rate limit), skip it for
-   that round and retry it on the next round; if a model is missing from the harness or
-   misconfigured, stop and say so.
+1. Ask once for anything unspecified: hosts in scope, project exclusions, target repos and files,
+   lookback window override, and line budgets (`AGENTS.md` net `<= 0` unless requested). Default
+   council models (overriding any single-provider rule unless the user names others):
+   `claude-opus-5-5` (`effort: xhigh`), `claude-fable-5-2` (`effort: xhigh`), `gpt-6.2-astra`
+   (`reasoningEffort: xhigh`), and `gemini-4-neon` (`thought_level: xhigh`). Never substitute
+   another model: if one is temporarily unavailable (such as a rate limit), skip it for that round
+   and retry it on the next round; if a model is missing from the harness or misconfigured, stop and
+   say so.
 2. In fresh clones under `$RUN/repos/`, run `git log --follow --format='%H %cI %s' -- <path>` for
    each target `AGENTS.md`, skill, and review/CI config. Record each substantive rule's cutoff (a
    cosmetic edit does not reset unrelated rules) plus the last `git log --grep='^Dream:' -1` commit
