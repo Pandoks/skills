@@ -19,8 +19,8 @@ outputs are PRs and a final report.
    and line budgets (`AGENTS.md` net `<= 0` unless requested). Default council models (overriding
    any single-provider rule unless the user names others): `claude-opus-5-5` (`effort: xhigh`),
    `claude-fable-5-2` (`effort: xhigh`), `gpt-6.2-astra` (`reasoningEffort: xhigh`), and
-   `gemini-pro-orchestrator-neon` (`thought_level: xhigh`); check availability in the harness first
-   and stop instead of substituting if any model is unavailable.
+   `gemini-4-neon` (`thought_level: xhigh`); check availability in the harness first and stop
+   instead of substituting if any model is unavailable.
 2. In fresh clones under `$RUN/repos/`, run `git log --follow --format='%H %cI %s' -- <path>` for
    each target `AGENTS.md`, skill, and review/CI config. Record each substantive rule's cutoff (a
    cosmetic edit does not reset unrelated rules) plus the last `git log --grep='^Dream:' -1` commit
@@ -50,11 +50,11 @@ outputs are PRs and a final report.
 ## 3. Multi-model council
 
 6. **Round 1 (blind):** Spawn the four council models (`claude-opus-5-5`, `claude-fable-5-2`,
-   `gpt-6.2-astra`, `gemini-pro-orchestrator-neon`, or the user's override) at `xhigh`, each with a
-   distinct lens (code taste, prompt adherence, verification/CI, workflow/UX), given the same
-   corpus, cutoffs, open-PR ranges, budgets, and read-only rules, with zero cross-reading. Each
-   writes `$RUN/council/r1-<lens>.md` with quantified drivers, root causes, net-`<=0` diffs, and
-   honest limits.
+   `gpt-6.2-astra`, `gemini-4-neon`, or the user's override) at `xhigh`, each with a distinct lens
+   (code taste, prompt adherence, verification/CI, workflow/UX), given the same corpus, cutoffs,
+   open-PR ranges, budgets, and read-only rules, with zero cross-reading. Each writes
+   `$RUN/council/r1-<lens>.md` with quantified drivers, root causes, net-`<=0` diffs, and honest
+   limits.
 7. **Round 2 (cross-examination):** Share all R1 reports and constraints. Each member red-teams peer
    reports, reproduces key counts/diffs/open-PR merges (`git merge-file`), and votes on disputed
    decisions and 5 paired eval cases. Keep edits supported by reproduced evidence and write `v1`.
