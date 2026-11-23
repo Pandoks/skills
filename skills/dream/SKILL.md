@@ -41,13 +41,13 @@ outputs are PRs and a final report.
    logs). Obtain a consistent SQLite backup with the source database and its directory protected
    from writes by the OS, or copy the database and its present sidecars from one atomic filesystem
    snapshot. Query and integrity-check the resulting copy under `$RUN`. If a host is unreachable or
-   neither method is available, report that coverage gap and continue. Filter at query time to
-   threads with activity after `last_run - 7d` (or `now - 30d` when no prior run exists), keeping a
-   7-day overlap before `last_run` to verify whether recent changes improved outcomes without
-   re-exporting full history. Export normalized JSONL per top-level thread under `$RUN/corpus/`:
-   host, project, workspace, provider, timestamps, each human message, preceding assistant text, and
-   inline review anchor, dropping excluded projects (with their aliases and worktrees) and subagent
-   threads at query time.
+   neither method is available, report that coverage gap and continue. When `last_run` exists,
+   filter at query time to threads with activity after `last_run - 7d` (keeping a 7-day overlap
+   before `last_run` to verify whether recent changes improved outcomes without re-exporting full
+   history); on a first run with no prior `last_run`, export all history. Export normalized JSONL
+   per top-level thread under `$RUN/corpus/`: host, project, workspace, provider, timestamps, each
+   human message, preceding assistant text, and inline review anchor, dropping excluded projects
+   (with their aliases and worktrees) and subagent threads at query time.
 5. Write `manifest.json` with counts per host and per cutoff split into `new` (after `last_run`, or
    all exported on a first run) vs `overlap` (the 7-day baseline before `last_run`), verified by an
    independent count. Weight `new` and post-cutoff recurrences over older history, and compare `new`
