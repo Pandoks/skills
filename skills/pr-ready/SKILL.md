@@ -11,12 +11,12 @@ Inspect the full change against its base, never just the last commit: from the r
 `git diff -U0 <merge-base>` for a PR and `git diff -U0 HEAD` for local work, plus untracked files.
 For a local handoff, report the diff on the existing branch. Create a branch or commit only if the
 user asks for that action. Finish after verification and review unless the user requested
-monitoring. For a small, straightforward change (under ~50 changed lines, any number of files), run
-steps 1, 2, and 5 plus one fresh correctness review (a subagent if available, told to change nothing
-in the repo and test only in its own scratch copy; else a cold reread; no loop), and give a compact
-≤8-line report without tables. A docs typo or comment-only fix (no code or config) needs no review
-or report shape: check the diff and reply in a sentence or two. Always apply `test-audit` when tests
-change and step 4 when a PR exists.
+monitoring. For a small, straightforward local change (under ~50 changed lines, any number of files;
+the repo's `AGENTS.md` wins if stricter), run steps 1, 2, and 5 plus one fresh correctness review (a
+subagent if available, told to change nothing in the repo and test only in its own scratch copy;
+else a cold reread; no loop), and give a compact ≤8-line report without tables. A docs typo or
+comment-only fix (no code or config) needs no review or report shape: check the diff and reply in a
+sentence or two. Always apply `test-audit` when tests change and step 4 when a PR exists.
 
 ## Checklist
 
@@ -30,15 +30,15 @@ change and step 4 when a PR exists.
 2. **Additions, names, layout, and budgets:** For each added file, helper, option, env var, guard,
    retry, or doc section, name what fails without it or delete it. Trace callers/consumers before
    deleting or moving code. Prefer the tool's native feature (with a docs link) over custom code.
-   Use full-word names matching neighbors, rename stale identifiers, inline single-use helpers when
-   readable, and separate logical blocks with blank lines. Instruction files (`AGENTS.md`,
-   `SKILL.md`) must stay net `<= 0` lines unless the user asked to add lines (report before →
-   after).
+   Use full-word names matching neighbors, rename stale identifiers, inline one-off wrappers when
+   readable (respecting the repo's helper layout), and separate logical blocks with blank lines.
+   Instruction files (`AGENTS.md`, `SKILL.md`) stay net `<= 0` lines for rewordings unless the user
+   or the repo's Docs rule requires adding an entry (report before → after).
 3. **Review loop:** For a PR, a complex or high-risk change, or ~50+ changed lines, run a fresh
-   `orchestrate` review across correctness, simplicity, this checklist, repo rules, and tests until
-   one round is clean; a completed `orchestrate` review of this revision counts. Reviewers apply
-   this checklist themselves, write only in their own scratch copies, and never start another review
-   loop. Never invent new nits in late rounds.
+   multi-angle review (`orchestrate` if installed, else subagents or a cold pass) across
+   correctness, simplicity, this checklist, repo rules, and tests until one round is clean; one
+   already done for this revision counts. Reviewers apply this checklist, write only in their own
+   scratch copies, and never start another review loop. Never invent new nits in late rounds.
 4. **Bot findings & PR state (when a PR exists):** Fix real bot findings; dismiss asks for hardening
    that the repo's fail-fast rule excludes, citing the rule. Confirm the PR description (with a
    terse `change | why | deleted/moved` table) matches the final diff, head is current with base,
@@ -46,7 +46,7 @@ change and step 4 when a PR exists.
    unresolved threads remain. Follow the repo's review triggers and wait policy (by default, stop
    waiting on missing bots 30 minutes after the last push) and name which reviews missed the head.
 5. **Final verification:** Run repo format/lint/type/test checks on the final revision and verify
-   through the user's real entry point (real CLI, keybinding, screenshot, curl, reload, or deploy).
+   through the user's real entry point (CLI, keybinding, screenshot, curl, reload, allowed deploy).
 
 ## Handoff
 

@@ -42,6 +42,8 @@ independently guard a public API, protocol, config, migration, security, or stor
 
 1. Before deleting any existing test, read the production owner, callers, sibling tests, and CI
    routing; record its exact location, what failure it detects, non-test callers of its seam, and
-   what stronger proof remains. Delete unlocked dead helpers/seams in the same change.
+   what stronger proof remains. A failing test may be catching a real bug: reproduce it and fix the
+   owner; never delete a test because it fails. Delete unlocked dead helpers/seams in the same
+   change.
 2. Validate using the owning repo's `AGENTS.md` format, lint, type, and test commands — including
    exercising the real changed entry point, not only mocked unit tests.
