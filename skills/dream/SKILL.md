@@ -17,8 +17,9 @@ outputs are PRs and a final report.
 
 1. Ask once for anything unspecified: hosts in scope, project exclusions, target repos and files,
    line budgets (`AGENTS.md` net `<= 0` unless requested), and allowed council/eval models. Discover
-   models dynamically from the harness; if a named model is unavailable, stop instead of
-   substituting.
+   all configured providers and frontier models dynamically from the harness (overriding any
+   single-provider default) so the run spans every available provider unless the user restricts it;
+   if a named model or provider is unavailable, stop instead of substituting.
 2. In fresh clones under `$RUN/repos/`, run `git log --follow --format='%H %cI %s' -- <path>` for
    each target `AGENTS.md`, skill, and review/CI config. Record each substantive rule's cutoff (a
    cosmetic edit does not reset unrelated rules) plus the last `git log --grep='^Dream:' -1` commit
@@ -47,11 +48,12 @@ outputs are PRs and a final report.
 
 ## 3. Multi-model council
 
-6. **Round 1 (blind):** Spawn one agent per allowed distinct model family (`>=3` when available),
-   each with a distinct lens (code taste, prompt adherence, verification/CI, workflow/UX), given the
-   same corpus, cutoffs, open-PR ranges, budgets, and read-only rules, with zero cross-reading. Each
-   writes `$RUN/council/r1-<lens>.md` with quantified drivers, root causes, net-`<=0` diffs, and
-   honest limits.
+6. **Round 1 (blind):** Spawn 3–4 councilors across every available provider (top reasoning model
+   per provider, plus a second distinct model where a provider offers different model families) at
+   high/xhigh effort, each with a distinct lens (code taste, prompt adherence, verification/CI,
+   workflow/UX), given the same corpus, cutoffs, open-PR ranges, budgets, and read-only rules, with
+   zero cross-reading. Each writes `$RUN/council/r1-<lens>.md` with quantified drivers, root causes,
+   net-`<=0` diffs, and honest limits.
 7. **Round 2 (cross-examination):** Share all R1 reports and constraints. Each member red-teams peer
    reports, reproduces key counts/diffs/open-PR merges (`git merge-file`), and votes on disputed
    decisions and 5 paired eval cases. Keep edits supported by reproduced evidence and write `v1`.
@@ -70,12 +72,13 @@ outputs are PRs and a final report.
    config, fail to read a decoy outside its sandbox, fail to write outside it, and list no tool that
    can message a person or drive the desktop. Save the results; fix isolation before scoring if any
    check fails or a live `shasum` changes.
-10. Run paired real post-cutoff corpus fixtures across `>=2` distinct model families, scoring
-    observable state (files, diffs, recorder logs, parsed fields) + explicit guardrails (zero
-    unintended edits, zero unrequested sends, preserved required annotations) and blind
-    randomized-order judging for qualitative tasks. Count timeouts as failures, record seconds per
-    run, and read raw replies before trusting a metric: a scorer that passes on a negation, or a
-    case where baseline is already at its floor or ceiling, proves nothing.
+10. Run paired real post-cutoff corpus fixtures across models from `>=2` distinct providers
+    (including a subagent-tier model when available), scoring observable state (files, diffs,
+    recorder logs, parsed fields) + explicit guardrails (zero unintended edits, zero unrequested
+    sends, preserved required annotations) and blind randomized-order judging for qualitative tasks.
+    Count timeouts as failures, record seconds per run, and read raw replies before trusting a
+    metric: a scorer that passes on a negation, or a case where baseline is already at its floor or
+    ceiling, proves nothing.
 11. Give each council member the exact diff, raw trials, guardrail evidence, and blind judgments.
     SHIP only when every member votes SHIP, `B` passes every required guardrail (two equally failing
     arms do not pass), and valid evidence supports the targeted gains. Otherwise revise the concrete
