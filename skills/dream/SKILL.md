@@ -55,11 +55,12 @@ outputs are PRs and a final report.
    open-PR ranges, budgets, and read-only rules, with zero cross-reading. Each writes
    `$RUN/council/r1-<lens>.md` with quantified drivers, root causes, net-`<=0` diffs, and honest
    limits.
-7. **Round 2 (cross-examination):** Share all R1 reports and constraints. Each member red-teams peer
-   reports, reproduces key counts/diffs/open-PR merges (`git merge-file`), and votes on disputed
-   decisions and 5 paired eval cases. Keep edits supported by reproduced evidence and write `v1`.
+7. **Cross-examination (Round 2+):** Share all prior reports and constraints. Each member red-teams
+   peer reports, reproduces key counts/diffs/open-PR merges (`git merge-file`), and votes on
+   disputed decisions and 5 paired eval cases. Run additional council rounds if major splits remain
+   until the council converges on reproduced evidence and candidate `v1`.
 
-## 4. Isolated A/B simulation and loop (max 3 candidates)
+## 4. Isolated A/B simulation and council loop
 
 8. Materialize baseline (`A`) and candidate (`B`) in per-run sandboxes under `$RUN/eval/`. Confine
    every agent, judge, and process that runs agent-written files, with their children, by OS
@@ -83,8 +84,9 @@ outputs are PRs and a final report.
 11. Give each council member the exact diff, raw trials, guardrail evidence, and blind judgments.
     SHIP only when every member votes SHIP, `B` passes every required guardrail (two equally failing
     arms do not pass), and valid evidence supports the targeted gains. Otherwise revise the concrete
-    blockers, recheck line budgets and open-PR overlaps, and rerun. After three candidates, hold
-    unresolved edits and report them as `Not verified:`.
+    blockers, recheck line budgets and open-PR overlaps, and loop between A/B evals and council
+    review for as many rounds as needed until every council member votes SHIP (escalating to the
+    user only if a real external blocker or preference tradeoff prevents convergence).
 
 ## 5. Ship PRs and clean up
 
