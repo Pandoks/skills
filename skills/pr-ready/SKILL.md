@@ -7,11 +7,10 @@ description: >-
 
 # PR Ready
 
-Inspect the full change against its base, never just the last commit: from the repo root,
-`git diff -U0 <merge-base>` for a PR and `git diff -U0 HEAD` for local work, plus untracked files.
-For a local handoff, report the diff on the existing branch. Create a branch or commit only if the
-user asks for that action. Finish after verification and review unless the user requested
-monitoring. For a small, straightforward local change (under ~50 changed lines, any number of files;
+From the repo root, inspect the full change, never just the last commit: `git diff -U0 <merge-base>`
+for a PR or `git diff -U0 HEAD` locally, plus untracked files. Hand off local diffs on the existing
+branch. Create a branch or commit only if asked. Finish after verification and review unless asked
+to monitor. For a small, straightforward local change (under ~50 changed lines, any number of files;
 the repo's `AGENTS.md` wins if stricter), run steps 1, 2, and 5 plus one fresh correctness review (a
 subagent if available, told to change nothing in the repo and test only in its own scratch copy;
 else a cold reread; no loop), and give a compact ≤8-line report without tables. A docs typo or
@@ -42,21 +41,25 @@ sentence or two. Always apply `test-audit` when tests change and step 4 when a P
 4. **Bot findings & PR state (when a PR exists):** Fix real bot findings; dismiss asks for hardening
    that the repo's fail-fast rule excludes, citing the rule. Confirm the PR description (with a
    terse `change | why | deleted/moved` table) matches the final diff, head is current with base,
-   required CI checks and intended path-filtered jobs passed on the current head SHA, and zero
-   unresolved threads remain. Follow the repo's review triggers and wait policy (by default, stop
+   required CI checks and intended path-filtered jobs passed on the current head SHA, zero
+   unresolved threads remain, and no review still requests changes (dismiss a bot's handled review
+   yourself, with a note). Follow the repo's review triggers and wait policy (by default, stop
    waiting on missing bots 30 minutes after the last push) and name which reviews missed the head.
 5. **Final verification:** Run repo format/lint/type/test checks on the final revision and verify
    through the user's real entry point (CLI, keybinding, screenshot, curl, reload, allowed deploy).
 
 ## Handoff
 
-Send one final report, with no interim status text, in this shape (omit empty optional lines),
-always ending with a `**tldr:** <1–2 sentences>` line of its own after the list:
+After all reviews finish, use this format once. Omit interim status text and empty optional fields.
 
-- `Ready:` PR link + head SHA, or for local work the current branch with the change left as it is,
-  uncommitted unless the user asked for a commit (or `Not ready:` + exact blocker)
-- `Changed:` up to 7 grouped rows (`change | why needed | deleted or moved to`)
+- `Ready:` PR link + head SHA (several PRs: one each in merge order, saying why any is a draft), or
+  for local work the current branch, uncommitted unless asked. Use `Not ready:` + exact blocker for
+  a stale PR head, unverified required checks on the reviewed SHA, or any other unmet requirement.
+- `Does:` up to 3 plain bullets on what it does and why, by behavior: no file names, SHAs, or counts
+- `Changed:` without a PR only, up to 7 grouped rows (`change | why needed | deleted or moved to`)
 - `Dismissed:` rejected bot findings + cited rule and the concrete reason in one clause (if any)
 - `Verified:` entry point, input, and observed output (`test-audit` note if tests changed)
 - `Not verified:` material untested path and exact blocker (if any)
-- `Needs you:` copy-pasteable numbered commands flagging interactive prompts (if any)
+- `Needs you:` copy-pasteable numbered commands flagging interactive prompts, or `nothing`
+
+After `Needs you:`, finish on a separate line with `**tldr:** <1–2 sentences>`.
