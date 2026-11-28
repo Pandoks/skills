@@ -10,11 +10,11 @@ description: >-
 1. Inventory what this thread created across every host it touched: worktrees, branches, temp files,
    servers, containers, images, cloud and cluster resources, scheduled jobs, and dead code.
 2. Before deleting, check open PRs (drafts included), worktree contents, and unpushed or unmerged
-   commits. Delete without asking only what this thread created, nothing still uses, and holds no
-   unique work.
+   commits. Delete unasked only what this thread created that nothing uses and holds no unique work.
 3. Keep every open PR and its branch, whoever opened it, unless the user asks for its removal. Leave
    what you did not create untouched; list it under `Needs your call` only if it looks abandoned or
    you cannot tell whose it is.
-4. After a merge: fast-forward the default-branch checkout and list what PRs remain for the user to
-   review next.
-5. Report one short table: `Deleted | Kept (why) | Needs your call`.
+4. After a merge, fast-forward the default-branch checkout. For dotfiles and skills, do this on each
+   in-scope machine or update its installed copy. Preserve local edits and rollout holds.
+5. Name any work left for the user (list waiting PRs in merge order), or say the thread can be
+   settled. Then give one short table: `Deleted | Kept (why) | Needs your call`.
